@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/client';
 
-type Params = { params: { id: string } };
-
 export async function GET(
   request: NextRequest,
-  context: Params
+  { params }: { params: { id: string } }
 ) {
   try {
-    const userId = context.params.id;
+    const userId = params.id;
     
     // For development mode, allow using simple auth
     // Note: bypassing the environment check for demo purposes
