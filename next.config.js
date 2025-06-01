@@ -12,6 +12,16 @@ const nextConfig = {
         permanent: false,
       },
     ];
+  },
+  // Optimize build for Netlify
+  output: 'standalone',
+  // Enable webpack caching for faster builds
+  webpack: (config, { dev, isServer }) => {
+    // Only enable cache in dev mode
+    if (dev) {
+      config.cache = true;
+    }
+    return config;
   }
 }
 

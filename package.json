@@ -11,7 +11,8 @@
     "postinstall": "prisma generate",
     "push": "git checkout main && git add . && git commit -m \"Update: Changes made on %DATE% at %TIME%\" && git push origin main",
     "schema": "node scripts/get-schema.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "git add . && git commit -m \"Deploy: %DATE% at %TIME%\" && git push origin main"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.6.0",

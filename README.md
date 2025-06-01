@@ -75,7 +75,30 @@ The application uses a PostgreSQL database with tables for:
 
 ## Deployment
 
-This application is deployed on Netlify. Deployment instructions can be found in the deployment section of the documentation.
+### Netlify Deployment
+
+1. Push your code to your Git repository
+
+2. Connect your repository to Netlify:
+   - Go to [Netlify](https://app.netlify.com/)
+   - Click "New site from Git"
+   - Select your Git provider and repository
+   - Leave the base directory blank (or set to `.`)
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+
+3. Configure environment variables in the Netlify dashboard:
+   - Go to Site settings → Build & deploy → Environment
+   - Add all variables from your `.env` file
+   - Add `NEXTAUTH_URL` (your Netlify site URL)
+   - Add `NEXTAUTH_SECRET` (a strong random string)
+
+4. Deploy your database schema:
+   ```
+   npx prisma migrate deploy
+   ```
+
+5. Verify your deployment is working correctly and check server logs if needed
 
 ## License
 
