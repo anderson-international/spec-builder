@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/client';
 
-type RouteParams = { id: string };
-
-export async function GET(
-  request: NextRequest,
-  context: { params: RouteParams }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const userId = context.params.id;
+    // Extract the ID from the URL pathname
+    const id = request.nextUrl.pathname.split('/').pop();
     
     // For development mode, allow using simple auth
     // Note: bypassing the environment check for demo purposes
     // Find user by ID
     const user = await prisma.user.findUnique({
       where: {
-        id: userId,
+        id: id,
       },
       select: {
         id: true,
