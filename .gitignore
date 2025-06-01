@@ -16,6 +16,13 @@ package-lock.json
 dist/
 build/
 out/
+.next/
+
+# Prisma
+.prisma/
+prisma/migrations/
+prisma/generated/
+prisma/client/
 
 # IDE and editors
 .idea/

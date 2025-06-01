@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 30, 33, 40;
+  --background-end-rgb: 20, 22, 28;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  min-height: 100vh;
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded font-medium focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-colors;
+  }
+  
+  .btn-blue {
+    @apply bg-button-blue text-text hover:bg-opacity-90 focus:ring-button-blue;
+  }
+  
+  .btn-green {
+    @apply bg-button-green text-text hover:bg-opacity-90 focus:ring-button-green;
+  }
+
+  .input {
+    @apply bg-white border border-border rounded p-2 text-gray-900 focus:ring-button-blue focus:border-button-blue;
+  }
+
+  .card {
+    @apply bg-[#161a22] border border-border rounded-lg p-4 shadow-lg overflow-hidden;
+  }
+  
+  /* Tag components */
+  .tag {
+    @apply inline-block px-2 py-1 rounded-full text-xs;
+  }
+  
+  .tag-primary {
+    @apply tag bg-button-blue bg-opacity-20 text-text;
+  }
+  
+  .tag-secondary {
+    @apply tag bg-border bg-opacity-30 text-text;
+  }
+  
+  /* Typography components */
+  .heading-primary {
+    @apply text-lg font-semibold text-text;
+  }
+  
+  .heading-secondary {
+    @apply text-sm font-medium text-divider;
+  }
+  
+  .text-meta {
+    @apply text-xs text-divider;
+  }
+}

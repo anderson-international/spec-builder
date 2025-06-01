@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String          @unique
+  name         String?
+  role         String
+  created_at   DateTime        @default(now()) @db.Timestamptz
+  slack_userid String?         @db.VarChar(30)
+  jotform_name String?         @db.VarChar(100)
+  specifications Specification[]
+
+  @@map("users")
+  @@index([email], name: "idx_user_email")
+  @@index([slack_userid], name: "idx_user_slack_userid")
+}
+
+// Specification model
+model Specification {
+  id                 Int              @id @default(autoincrement())
+  shopify_handle     String           @db.VarChar(255)
+  product_type_id    Int
+  is_fermented       Boolean          @default(false)
+  is_oral_tobacco    Boolean          @default(false)
+  is_artisan         Boolean          @default(false)
+  grind_id           Int
+  nicotine_level_id  Int
+  experience_level_id Int
+  review             String?          @db.Text
+  star_rating        Int              @default(0)
+  rating_boost       Int              @default(0)
+  created_at         DateTime         @default(now()) @db.Timestamp
+  updated_at         DateTime         @default(now()) @db.Timestamp
+  user_id            String           @db.Uuid
+  moisture_level_id  Int
+  product_brand_id   Int
+  submission_id      String?          @db.VarChar(20)
+
+  // Relations
+  user               User             @relation(fields: [user_id], references: [id])
+  product_type       ProductType      @relation(fields: [product_type_id], references: [id])
+  product_brand      ProductBrand     @relation(fields: [product_brand_id], references: [id])
+  grind              Grind            @relation(fields: [grind_id], references: [id])
+  moisture_level     MoistureLevel    @relation(fields: [moisture_level_id], references: [id])
+  nicotine_level     NicotineLevel    @relation(fields: [nicotine_level_id], references: [id])
+  experience_level   ExperienceLevel  @relation(fields: [experience_level_id], references: [id])
+  tobacco_types      SpecTobaccoType[]
+  tasting_notes      SpecTastingNote[]
+  cures              SpecCure[]
+
+  @@map("specifications")
+  @@index([shopify_handle], name: "idx_specifications_shopify_handle")
+  @@index([product_type_id], name: "idx_specifications_product_type_id")
+  @@index([product_brand_id], name: "idx_specifications_product_brand_id")
+  @@index([grind_id], name: "idx_specifications_grind_id")
+  @@index([nicotine_level_id], name: "idx_specifications_nicotine_level_id")
+  @@index([experience_level_id], name: "idx_specifications_experience_level_id")
+  @@unique([submission_id], name: "specifications_submission_id_key")
+  @@index([submission_id], name: "idx_specifications_submission_id")
+}
+
+// Enum tables
+model ProductType {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_product_types")
+}
+
+model ProductBrand {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_product_brands")
+}
+
+model Grind {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_grinds")
+}
+
+model MoistureLevel {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_moisture_levels")
+}
+
+model NicotineLevel {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_nicotine_levels")
+}
+
+model ExperienceLevel {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_experience_levels")
+}
+
+model TobaccoType {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique @db.VarChar(255)
+  created_at    DateTime         @default(now()) @db.Timestamp
+  updated_at    DateTime         @default(now()) @db.Timestamp
+  specifications SpecTobaccoType[]
+
+  @@map("enum_tobacco_types")
+}
+
+model TastingNote {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique @db.VarChar(255)
+  created_at    DateTime         @default(now()) @db.Timestamp
+  updated_at    DateTime         @default(now()) @db.Timestamp
+  specifications SpecTastingNote[]
+
+  @@map("enum_tasting_notes")
+}
+
+model Cure {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique @db.VarChar(255)
+  created_at    DateTime         @default(now()) @db.Timestamp
+  updated_at    DateTime         @default(now()) @db.Timestamp
+  specifications SpecCure[]
+
+  @@map("enum_cures")
+}
+
+// Junction tables
+model SpecTobaccoType {
+  specification_id     Int
+  enum_tobacco_type_id Int
+  specification        Specification @relation(fields: [specification_id], references: [id])
+  tobacco_type         TobaccoType  @relation(fields: [enum_tobacco_type_id], references: [id])
+
+  @@id([specification_id, enum_tobacco_type_id])
+  @@map("spec_tobacco_types")
+}
+
+model SpecTastingNote {
+  specification_id     Int
+  enum_tasting_note_id Int
+  specification        Specification @relation(fields: [specification_id], references: [id])
+  tasting_note         TastingNote  @relation(fields: [enum_tasting_note_id], references: [id])
+
+  @@id([specification_id, enum_tasting_note_id])
+  @@map("spec_tasting_notes")
+}
+
+model SpecCure {
+  specification_id Int
+  enum_cure_id     Int
+  specification    Specification @relation(fields: [specification_id], references: [id])
+  cure             Cure         @relation(fields: [enum_cure_id], references: [id])
+
+  @@id([specification_id, enum_cure_id])
+  @@map("spec_cures")
+}
