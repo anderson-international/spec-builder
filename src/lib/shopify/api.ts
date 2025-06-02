@@ -1,4 +1,4 @@
-import { request, gql } from 'graphql-request';
+import { gql, request } from 'graphql-request';
 
 // Environment variables
 const SHOPIFY_STORE_URL = process.env.SHOPIFY_STORE_URL;
@@ -86,8 +86,9 @@ export async function fetchAvailableProducts(excludeHandles: string[] = [], limi
             featuredImage {
               url
             }
-            metafield(namespace: "custom", key: "brand") {
+            metafield(namespace: "custom", key: "brands") {
               value
+              type
             }
             publishedAt
             updatedAt
@@ -106,6 +107,8 @@ export async function fetchAvailableProducts(excludeHandles: string[] = [], limi
       },
       headers
     );
+    
+    // Process the response
 
     // Extract products and filter out ones that are in the excludedHandles list
     const products = data.products?.edges
@@ -114,14 +117,60 @@ export async function fetchAvailableProducts(excludeHandles: string[] = [], limi
         if (excludeHandles.includes(node.handle)) {
           return null;
         }
-        
-        let brand = node.vendor; // Default to vendor
-        
-        // Try to use the metafield if available
-        if (node.metafield && node.metafield.value) {
-          brand = node.metafield.value;
+
+        // Get brand from custom.brands metafield - no fallback to vendor
+        if (!node.metafield || !node.metafield.value) {
+          throw new Error(`Product '${node.title}' is missing required custom.brands metafield`);
         }
-      
+        
+        // Parse the brand value based on metafield type
+        let brand;
+        try {
+          // Handle list.single_line_text_field type specifically
+          if (node.metafield.type === 'list.single_line_text_field') {
+            // This will be a JSON array of strings
+            const parsed = JSON.parse(node.metafield.value);
+            
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              // Use the first value in the list
+              brand = parsed[0];
+            } else {
+              throw new Error(`Product '${node.title}' has empty brands list`);
+            }
+          }
+          // If it's any other JSON type, try to parse it
+          else if (node.metafield.type === 'json_string' || 
+              node.metafield.value.startsWith('[') || 
+              node.metafield.value.startsWith('{')) {
+            
+            const parsed = JSON.parse(node.metafield.value);
+            
+            // Handle array case (take first value)
+            if (Array.isArray(parsed)) {
+              brand = parsed[0] || '';
+            } 
+            // Handle object case
+            else if (typeof parsed === 'object' && parsed !== null) {
+              // If it has a name or value property, use that
+              brand = parsed.name || parsed.value || parsed.brand || '';
+            }
+            // Handle primitive value
+            else {
+              brand = String(parsed);
+            }
+          } else {
+            // Use as simple string
+            brand = node.metafield.value;
+          }
+        } catch (err) {
+          // Don't use fallbacks - report the parsing error clearly
+          throw new Error(`Product '${node.title}' has malformed custom.brands metafield (parsing error)`);
+        }
+        
+        if (!brand) {
+          throw new Error(`Product '${node.title}' has invalid custom.brands metafield format`);
+        }
+
         return {
           id: node.id.replace('gid://shopify/Product/', ''),  // Remove the GraphQL ID prefix
           handle: node.handle,

@@ -13,6 +13,8 @@ export async function GET() {
         name: 'asc',
       },
     });
+    
+    // Return all brands from the database
 
     return NextResponse.json(brands);
   } catch (error) {

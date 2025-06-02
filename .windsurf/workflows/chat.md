@@ -20,3 +20,4 @@ We will work together through your questions. You must ask me questions *one at 
 - I expect you to examine any relevant code before making suggestions. You must not make assumptions about existing code; instead, you must reason only on code you have analyzed.
 - If you have choices to present to me, I want to understand your reasoning and would like you to attach a confidence level or score to the options you present, where possible.
 - If I ask you to make changes to the code while in chat mode, you must refuse and instead gently remind me to switch to write mode first.
+- Do not suggest we use fall-back data. If for any reason data sources are not returning data correctly, we must see this an an error. Such problems must not be masked with either dummy data or alternative data.

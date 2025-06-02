@@ -109,9 +109,11 @@ export default function SpecificationsPage() {
     return dbBrands.map(brand => ({ id: brand.name, label: brand.name }));
   }, [dbBrands]);
   
-  // Helper function for fuzzy brand matching
+  // Helper function for brand matching with case insensitive comparison
   const isBrandMatch = useCallback((productBrand: string, selectedBrand: string) => {
-    return productBrand.toLowerCase() === selectedBrand.toLowerCase();
+    const productBrandLower = productBrand.toLowerCase();
+    const selectedBrandLower = selectedBrand.toLowerCase();
+    return productBrandLower === selectedBrandLower;
   }, []);
   
   // Tabs definition
@@ -139,10 +141,13 @@ export default function SpecificationsPage() {
 
   // Apply filters to products
   const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      // Apply brand filter with fuzzy matching
-      if (brandFilter && !isBrandMatch(product.brand, brandFilter)) {
-        return false;
+    const results = products.filter(product => {
+      // Apply brand filter
+      if (brandFilter) {
+        const matches = isBrandMatch(product.brand, brandFilter);
+        if (!matches) {
+          return false;
+        }
       }
       
       // Apply search query
@@ -152,6 +157,8 @@ export default function SpecificationsPage() {
       
       return true;
     });
+    
+    return results;
   }, [products, brandFilter, searchQuery, isBrandMatch]);
   
   // Handle tab change
@@ -254,6 +261,11 @@ export default function SpecificationsPage() {
   useEffect(() => {
     fetchBrands();
   }, [fetchBrands]);
+  
+  // Update when brand filter changes
+  useEffect(() => {
+    // This hook can be used for any side effects when brand filter changes
+  }, [brandFilter]);
 
   // Fetch available products
   const fetchProducts = useCallback(async () => {

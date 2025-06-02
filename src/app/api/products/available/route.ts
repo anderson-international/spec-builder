@@ -31,14 +31,24 @@ export async function GET(request: NextRequest) {
 
     // 2. Fetch products from Shopify API using our GraphQL client
     // This will automatically exclude products that already have specifications
+    // Brand metafield is required - no fallback to vendor
     let availableProducts;
     try {
       availableProducts = await fetchAvailableProducts(existingHandles, limit);
     } catch (error) {
       console.error('Shopify GraphQL API error:', error);
+      // Handle specific error for missing custom.brands metafields
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isBrandMetafieldError = errorMessage.includes('missing required custom.brands metafield');
+      
       return NextResponse.json(
-        { error: 'Failed to fetch products from Shopify API', details: error instanceof Error ? error.message : 'Unknown error' },
-        { status: 500 }
+        { 
+          error: isBrandMetafieldError ? 
+            'One or more products are missing required custom.brands metafields in Shopify' : 
+            'Failed to fetch products from Shopify', 
+          details: errorMessage 
+        },
+        { status: isBrandMetafieldError ? 400 : 500 }
       );
     }
 
@@ -55,10 +65,12 @@ export async function GET(request: NextRequest) {
       id: product.id,
       handle: product.handle,
       title: product.title,
-      brand: product.brand, // Use the brand property which may come from metafield or fall back to vendor
+      brand: product.brand, // Brand value comes exclusively from custom.brands metafield - no vendor fallback
       imageUrl: product.image_url || '/images/placeholder-product.png', // Fallback image
       productUrl: product.product_url,
     }));
+    
+    // Return the formatted products
 
     return NextResponse.json(formattedProducts);
   } catch (error) {

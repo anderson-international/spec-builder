@@ -14,7 +14,7 @@ In write mode, the goal is to implement the ideas we have discussed while in cha
 - Fix linting errors as they arise. Do not let lint errors sit, you must fix these to leave clean code files. You can request that I run npm run lint periodically if you need me to.
 - Write script files into the script directory to test out ideas and debug problems
 - Do not attempt to run command line commands. Instead, you must print to the chat window so that I can copy it and run it manually. The commands must be formatted correctly for the Windows command line tool only
-- Do not write fall back dummy data. If for enay reason, data sources are not returninf data correctly, we must fix these problems. Never mask data fetching problems with dummy data.
+- Do not write fall-back data. If for enay reason, data sources are not returning data correctly, we must fix these problems. Never mask data fetching problems with either dummy data or alternative data.
 
 ## Write Mode Hints
 - Before writing SQL, ensure you have read the db-schema.txt file located in the root of this project. Pay close attention to the column names. Do not take shortcuts when reading this file. Especially do not assume the column names from the index names as this has led us into trouble before.
