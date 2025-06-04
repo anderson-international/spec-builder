@@ -119,12 +119,11 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
           };
         }
         
-        // Check if loading or failed
+        // Check if loading
         const isLoading = productState.loadingHandles.has(spec.shopify_handle);
-        const hasFailed = productState.failedHandles.has(spec.shopify_handle);
         
-        if (!isLoading && hasFailed) {
-          // Mark as not loading if it failed
+        if (!isLoading) {
+          // Mark as not loading if it's not in loading state
           return {
             ...spec,
             isProductLoading: false,
@@ -139,7 +138,7 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
         specifications: updatedSpecs,
       };
     });
-  }, [productState.products, productState.loadingHandles, productState.failedHandles, getProduct, state.specifications.length]);
+  }, [productState.products, productState.loadingHandles, getProduct, state.specifications.length]);
 
   // Sort specifications by completeness (products loaded first) with proper memoization
   const [sortedSpecifications, setSortedSpecifications] = useState<SpecificationWithProduct[]>([]);

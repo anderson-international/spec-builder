@@ -11,7 +11,6 @@ import {
 const defaultProductCacheState: ProductCacheState = {
   products: new Map<string, ShopifyProduct>(),
   loadingHandles: new Set<string>(),
-  failedHandles: new Map<string, number>(), // Map of handle to retry count
   isLoadingBatch: false,
   error: null,
   
@@ -19,7 +18,8 @@ const defaultProductCacheState: ProductCacheState = {
   currentCursor: undefined,
   isBackgroundLoading: false,
   isLoadingComplete: false,
-  failedBatches: 0,
+  batchesLoaded: 0,
+  totalProductsLoaded: 0,
 };
 
 const defaultProductContext: ProductContextType = {
@@ -29,9 +29,6 @@ const defaultProductContext: ProductContextType = {
   fetchProductsByHandles: async () => {},
   resetCache: () => {},
   isProductLoading: () => false,
-  didProductFail: () => false,
-  getFailedRetryCount: () => 0,
-  retryFailedProducts: () => {},
   
   // Core progressive batch loading functions
   startBackgroundLoading: async () => {},
@@ -82,23 +79,21 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       setState(prev => {
         const updatedProducts = new Map(prev.products);
         const updatedLoadingHandles = new Set(prev.loadingHandles);
-        const updatedFailedHandles = new Map(prev.failedHandles);
         
         products.forEach(product => {
           updatedProducts.set(product.handle, product);
           updatedLoadingHandles.delete(product.handle);
-          updatedFailedHandles.delete(product.handle);
         });
         
         return {
           ...prev,
           products: updatedProducts,
           loadingHandles: updatedLoadingHandles,
-          failedHandles: updatedFailedHandles,
           isLoadingBatch: false,
           currentCursor: nextCursor,
           isLoadingComplete: !hasNextPage,
-          failedBatches: 0,
+          batchesLoaded: 1,
+          totalProductsLoaded: products.length,
         };
       });
       
@@ -122,119 +117,97 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch specific products by handles (high priority)
   const fetchProductsByHandles = useCallback(async (handles: string[]) => {
-    if (!handles.length) return;
+    if (!handles?.length) return;
     
-    // Filter out handles that are already loaded or currently loading
-    const handlesToFetch = handles.filter(handle => 
-      !state.products.has(handle) && 
-      !state.loadingHandles.has(handle) &&
-      !state.failedHandles.has(handle) // Also skip previously failed handles
-    );
-    
-    if (!handlesToFetch.length) return;
-    
-    // Mark handles as loading
+    // Mark all handles as loading
     setState(prev => {
       const updatedLoadingHandles = new Set(prev.loadingHandles);
-      handlesToFetch.forEach((handle: string) => updatedLoadingHandles.add(handle));
-      
+      handles.forEach(handle => updatedLoadingHandles.add(handle));
       return {
         ...prev,
         loadingHandles: updatedLoadingHandles,
+        error: null,
       };
     });
     
     try {
-      // We'll create a new API endpoint to fetch products by handles
-      const response = await fetch('/api/products/byHandles', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ handles: handlesToFetch }),
-      });
+      // Only fetch products that aren't already loaded
+      const unloadedHandles = handles.filter(handle => !state.products.has(handle));
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch products by handles: ${response.status}`);
+      if (unloadedHandles.length > 0) {
+        const response = await fetch(`/api/products/byHandles?handles=${encodeURIComponent(JSON.stringify(unloadedHandles))}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products by handles: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!Array.isArray(data.products)) {
+          throw new Error('Invalid response format from products handles API');
+        }
+        
+        // Update cache with fetched products
+        setState(prev => {
+          const updatedProducts = new Map(prev.products);
+          const updatedLoadingHandles = new Set(prev.loadingHandles);
+          
+          // Add successfully loaded products to cache
+          data.products.forEach((product: ShopifyProduct) => {
+            updatedProducts.set(product.handle, product);
+            updatedLoadingHandles.delete(product.handle);
+          });
+          
+          // Remove loading state for any requested but not returned handles
+          unloadedHandles.forEach(handle => {
+            if (!data.products.some((p: ShopifyProduct) => p.handle === handle)) {
+              console.error(`Failed to load product: ${handle}`);
+              updatedLoadingHandles.delete(handle);
+            }
+          });
+          
+          return {
+            ...prev,
+            products: updatedProducts,
+            loadingHandles: updatedLoadingHandles,
+          };
+        });
+      } else {
+        // If all products are already loaded, just remove them from loading state
+        setState(prev => {
+          const updatedLoadingHandles = new Set(prev.loadingHandles);
+          handles.forEach(handle => updatedLoadingHandles.delete(handle));
+          
+          return {
+            ...prev,
+            loadingHandles: updatedLoadingHandles
+          };
+        });
       }
-      
-      const products: ShopifyProduct[] = await response.json();
-      
-      // Update the cache with fetched products
-      setState(prev => {
-        const updatedProducts = new Map(prev.products);
-        const updatedLoadingHandles = new Set(prev.loadingHandles);
-        const updatedFailedHandles = new Map(prev.failedHandles);
-        
-        // Add successfully fetched products to cache
-        products.forEach(product => {
-          updatedProducts.set(product.handle, product);
-          updatedLoadingHandles.delete(product.handle);
-          updatedFailedHandles.delete(product.handle);
-        });
-        
-        // Mark handles that weren't returned as failed
-        const fetchedHandles = new Set(products.map(p => p.handle));
-        handlesToFetch.forEach((handle: string) => {
-          if (!fetchedHandles.has(handle)) {
-            updatedLoadingHandles.delete(handle);
-            const currentRetries = updatedFailedHandles.get(handle) || 0;
-            updatedFailedHandles.set(handle, currentRetries + 1);
-          }
-        });
-        
-        return {
-          ...prev,
-          products: updatedProducts,
-          loadingHandles: updatedLoadingHandles,
-          failedHandles: updatedFailedHandles,
-        };
-      });
     } catch (error) {
-      // Mark all handles as failed
+      console.error('Error fetching products by handles:', error);
+      
+      // Log error and remove handles from loading
       setState(prev => {
         const updatedLoadingHandles = new Set(prev.loadingHandles);
-        const updatedFailedHandles = new Map(prev.failedHandles);
         
-        handlesToFetch.forEach((handle: string) => {
+        handles.forEach(handle => {
           updatedLoadingHandles.delete(handle);
-          const currentRetries = updatedFailedHandles.get(handle) || 0;
-          updatedFailedHandles.set(handle, currentRetries + 1);
         });
         
         return {
           ...prev,
           loadingHandles: updatedLoadingHandles,
-          failedHandles: updatedFailedHandles,
           error: error instanceof Error ? error.message : 'An unknown error occurred',
         };
       });
     }
-  }, [state.products, state.loadingHandles, state.failedHandles]);
+  }, [state.products, state.loadingHandles]);
 
   // Check if a product is currently loading
   const isProductLoading = useCallback((handle: string) => {
     return state.loadingHandles.has(handle);
   }, [state.loadingHandles]);
-
-  // Check if a product failed to load
-  const didProductFail = useCallback((handle: string) => {
-    return state.failedHandles.has(handle);
-  }, [state.failedHandles]);
-
-  // Get retry count for a failed product
-  const getFailedRetryCount = useCallback((handle: string) => {
-    return state.failedHandles.get(handle) || 0;
-  }, [state.failedHandles]);
-
-  // Retry loading failed products
-  const retryFailedProducts = useCallback(() => {
-    const failedHandles = Array.from(state.failedHandles.keys());
-    
-    if (failedHandles.length > 0) {
-      fetchProductsByHandles(failedHandles);
-    }
-  }, [state.failedHandles, fetchProductsByHandles]);
 
   // Load a single batch of products using cursor pagination
   const loadNextBatch = useCallback(async (batchSize: number = 25): Promise<boolean> => {
@@ -249,6 +222,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       // Construct URL with cursor if available
       const url = `/api/products/batch?limit=${batchSize}${state.currentCursor ? `&cursor=${encodeURIComponent(state.currentCursor)}` : ''}`;
       
+      // Log detailed information about the batch loading attempt
+      console.log(`Loading product batch with cursor: ${state.currentCursor || 'initial'}, limit: ${batchSize}, current total: ${state.totalProductsLoaded}`);
+      
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -262,27 +238,32 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Invalid response format from products batch API');
       }
       
+      // Log success information
+      console.log(`Successfully loaded batch: ${products.length} products, hasNextPage: ${hasNextPage}, total now: ${state.totalProductsLoaded + products.length}`);
+      if (hasNextPage) {
+        console.log(`Next cursor: ${nextCursor}`);
+      }
+      
       // Update cache with fetched products
       setState(prev => {
         const updatedProducts = new Map(prev.products);
         const updatedLoadingHandles = new Set(prev.loadingHandles);
-        const updatedFailedHandles = new Map(prev.failedHandles);
         
         products.forEach(product => {
           updatedProducts.set(product.handle, product);
           updatedLoadingHandles.delete(product.handle);
-          updatedFailedHandles.delete(product.handle);
         });
         
         return {
           ...prev,
           products: updatedProducts,
           loadingHandles: updatedLoadingHandles,
-          failedHandles: updatedFailedHandles,
           isLoadingBatch: false,
           currentCursor: nextCursor,
           isLoadingComplete: !hasNextPage,
-          failedBatches: 0, // Reset failure count on successful batch
+          batchesLoaded: prev.batchesLoaded + 1,
+          totalProductsLoaded: prev.totalProductsLoaded + products.length,
+          error: null, // Clear any previous errors on success
         };
       });
       
@@ -290,24 +271,28 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error loading product batch:', error);
       
-      // Update state to reflect error and increment failure count
+      // Update state to reflect error but DO NOT set isLoadingComplete
+      // so that we can continue trying to load products
       setState(prev => ({
         ...prev,
         isLoadingBatch: false,
-        failedBatches: prev.failedBatches + 1,
         error: error instanceof Error ? error.message : 'An unknown error occurred loading products',
       }));
       
-      return false; // Error occurred, consider the batch failed
+      // Return true to indicate we should try again, even after an error
+      // This ensures batch loading continues despite temporary errors
+      return true;
     }
-  }, [state.currentCursor, state.isLoadingComplete, state.isLoadingBatch]);
+  }, [state.currentCursor, state.isLoadingComplete, state.isLoadingBatch, state.totalProductsLoaded]);
 
-  // Background loading process with automatic retry and backoff
+  // Background loading process with automatic retry
   const startBackgroundLoading = useCallback(async () => {
     // If background loading is already active or loading is complete, don't do anything
     if (state.isBackgroundLoading || state.isLoadingComplete) {
       return;
     }
+    
+    console.log('Starting background product loading process');
     
     // Set background loading flag
     setState(prev => ({ ...prev, isBackgroundLoading: true }));
@@ -317,39 +302,43 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       // Load the next batch of products
       const hasMore = await loadNextBatch();
       
-      // If there are more batches, continue with a delay based on failure count
+      // If there are more batches, continue with a consistent delay
       if (hasMore && state.isBackgroundLoading) {
-        // Use exponential backoff strategy based on failure count
-        const delay = Math.min(1000 * Math.pow(2, state.failedBatches), 30000);
-        setTimeout(loadBatchesRecursively, delay);
+        // Use a consistent delay to ensure we load all products
+        setTimeout(loadBatchesRecursively, 1000);
       } else {
         // No more batches or background loading was stopped
-        setState(prev => ({ ...prev, isBackgroundLoading: false }));
+        console.log(`Background loading complete. Total products loaded: ${state.totalProductsLoaded}`);
+        setState(prev => ({ 
+          ...prev, 
+          isBackgroundLoading: false,
+          isLoadingComplete: !hasMore // Only set as complete if there are no more products
+        }));
       }
     };
     
     // Start the loading process
     loadBatchesRecursively();
-  }, [loadNextBatch, state.isBackgroundLoading, state.isLoadingComplete, state.failedBatches]);
+}, [loadNextBatch, state.isBackgroundLoading, state.isLoadingComplete, state.totalProductsLoaded]);
 
-  // Removed unnecessary control functions (pauseBackgroundLoading, resumeBackgroundLoading, getLoadingProgress)
+  // Create the context value with methods
+  const value = {
+    state,
+    
+    // Core product management methods
+    getProduct,
+    preloadProducts,
+    fetchProductsByHandles,
+    resetCache,
+    isProductLoading,
+    
+    // Core progressive batch loading functions
+    startBackgroundLoading,
+    loadNextBatch,
+  };
 
   return (
-    <ProductContext.Provider
-      value={{
-        state,
-        getProduct,
-        preloadProducts,
-        fetchProductsByHandles,
-        resetCache,
-        isProductLoading,
-        didProductFail,
-        getFailedRetryCount,
-        retryFailedProducts,
-        startBackgroundLoading,
-        loadNextBatch
-      }}
-    >
+    <ProductContext.Provider value={value}>
       {children}
     </ProductContext.Provider>
   );

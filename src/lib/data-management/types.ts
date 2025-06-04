@@ -19,7 +19,6 @@ export interface ShopifyProduct {
 export interface ProductCacheState {
   products: Map<string, ShopifyProduct>;
   loadingHandles: Set<string>;
-  failedHandles: Map<string, number>; // Map of handle to retry count
   isLoadingBatch: boolean;
   error: string | null;
   
@@ -27,7 +26,8 @@ export interface ProductCacheState {
   currentCursor?: string;          // Current cursor for batch pagination
   isBackgroundLoading: boolean;    // Whether background loading is active
   isLoadingComplete: boolean;      // Whether all products are loaded
-  failedBatches: number;           // Number of consecutive batch failures
+  batchesLoaded: number;           // Number of batches successfully loaded
+  totalProductsLoaded: number;     // Total number of products loaded
 }
 
 // Specification Types
@@ -93,9 +93,6 @@ export interface ProductContextType {
   fetchProductsByHandles: (handles: string[]) => Promise<void>;
   resetCache: () => void;
   isProductLoading: (handle: string) => boolean;
-  didProductFail: (handle: string) => boolean;
-  getFailedRetryCount: (handle: string) => number;
-  retryFailedProducts: () => void;
   
   // Core progressive batch loading functions
   startBackgroundLoading: () => Promise<void>;

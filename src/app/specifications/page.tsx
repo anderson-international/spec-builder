@@ -284,19 +284,7 @@ export default function SpecificationsPage() {
                           isProductLoading={spec.product ? false : productCache.isProductLoading(spec.shopify_handle)}
                         />
                       ))}
-                      {productCache.state.failedHandles.size > 0 && (
-                        <div className="col-span-full bg-amber-50 p-4 rounded-lg border border-amber-200 mt-4">
-                          <p className="text-amber-800 mb-2">
-                            <span className="font-bold">Note:</span> Some products couldn't be loaded
-                          </p>
-                          <button
-                            onClick={productCache.retryFailedProducts}
-                            className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition-colors"
-                          >
-                            Retry Loading Failed Products
-                          </button>
-                        </div>
-                      )}
+                      {/* Removed failed products UI - errors will now be properly logged to console */}
                     </div>
                   ) : (
                     <p className="text-gray-500 text-center py-10">
@@ -351,26 +339,6 @@ export default function SpecificationsPage() {
                       />
                     ))}
                   </div>
-
-
-                  
-                  {/* Failed product loading notification */}
-                  {productCache.state.failedHandles.size > 0 && (
-                    <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-semibold text-amber-800">Some products couldn't be loaded</h3>
-                          <p className="text-amber-700 mt-1">Failed products: {productCache.state.failedHandles.size}</p>
-                        </div>
-                        <button
-                          onClick={productCache.retryFailedProducts}
-                          className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition-colors"
-                        >
-                          Retry Loading Failed Products
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
             </div>
