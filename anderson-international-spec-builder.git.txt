@@ -1,0 +1,5585 @@
+Directory structure:
+└── anderson-international-spec-builder.git/
+    ├── README.md
+    ├── db-schema.txt
+    ├── netlify.toml
+    ├── next-env.d.ts
+    ├── next.config.js
+    ├── package.json
+    ├── postcss.config.js
+    ├── tailwind.config.js
+    ├── tsconfig.json
+    ├── .env.example
+    ├── .env.production
+    ├── .eslintrc.json
+    ├── docs/
+    │   ├── api-queries.md
+    │   ├── color-system.md
+    │   ├── deployment-troubleshooting.md
+    │   └── junction-tables.md
+    ├── prisma/
+    │   └── schema.prisma
+    ├── scripts/
+    │   ├── get-schema.js
+    │   ├── setup-netlify.js
+    │   └── test-db.js
+    ├── src/
+    │   ├── app/
+    │   │   ├── layout.tsx
+    │   │   ├── page.tsx
+    │   │   ├── api/
+    │   │   │   ├── auth/
+    │   │   │   │   ├── user/
+    │   │   │   │   │   └── [id]/
+    │   │   │   │   │       └── route.ts
+    │   │   │   │   └── users/
+    │   │   │   │       └── route.ts
+    │   │   │   ├── brands/
+    │   │   │   │   └── route.ts
+    │   │   │   ├── products/
+    │   │   │   │   ├── available/
+    │   │   │   │   │   └── route.ts
+    │   │   │   │   ├── batch/
+    │   │   │   │   │   └── route.ts
+    │   │   │   │   ├── byHandles/
+    │   │   │   │   │   └── route.ts
+    │   │   │   │   └── titles/
+    │   │   │   │       └── route.ts
+    │   │   │   └── specifications/
+    │   │   │       └── route.ts
+    │   │   ├── auth/
+    │   │   │   └── login/
+    │   │   │       └── page.tsx
+    │   │   └── specifications/
+    │   │       └── page.tsx
+    │   ├── components/
+    │   │   ├── auth/
+    │   │   │   └── ProtectedRoute.tsx
+    │   │   ├── layout/
+    │   │   │   ├── AppLayout.tsx
+    │   │   │   └── ProtectedRoute.tsx
+    │   │   ├── products/
+    │   │   │   └── ProductCard.tsx
+    │   │   ├── specifications/
+    │   │   │   └── SpecificationCard.tsx
+    │   │   └── ui/
+    │   │       ├── Card.tsx
+    │   │       ├── Filter.tsx
+    │   │       ├── LoadingSpinner.tsx
+    │   │       ├── Search.tsx
+    │   │       ├── StarRating.tsx
+    │   │       └── TabGroup.tsx
+    │   ├── lib/
+    │   │   ├── auth/
+    │   │   │   ├── context.tsx
+    │   │   │   └── types.ts
+    │   │   ├── data-management/
+    │   │   │   ├── DataProvider.tsx
+    │   │   │   ├── loadingContext.tsx
+    │   │   │   ├── productCache.tsx
+    │   │   │   ├── specificationCache.tsx
+    │   │   │   └── types.ts
+    │   │   ├── loading/
+    │   │   │   └── context.tsx
+    │   │   ├── prisma/
+    │   │   │   └── client.ts
+    │   │   └── shopify/
+    │   │       └── api.ts
+    │   └── styles/
+    │       └── globals.css
+    └── .windsurf/
+        ├── rules/
+        │   ├── prevent-react-effect-loops.md
+        │   └── stick-to-the-chat-plan.md
+        └── workflows/
+            ├── chat.md
+            ├── clean.md
+            ├── new-chat.md
+            └── write.md
+
+================================================
+FILE: README.md
+================================================
+# Spec Builder
+
+A Next.js application for managing tobacco snuff product specifications. The application integrates with Shopify's GraphQL API and connects to a Neon PostgreSQL database.
+
+## Purpose
+
+Spec Builder serves as a platform for expert reviewers to create and manage specifications for tobacco snuff products. It addresses the need for trusted information about snuff products by allowing experts to document their assessments and reviews.
+
+## Features
+
+- User authentication with role-based access control (admin and reviewers)
+  - Development mode uses simple user selection
+  - Production mode planned to use JWT or NextAuth integration
+- Protected routes for viewing specifications created by each reviewer
+- Integration with Shopify for product information
+- Mobile-friendly design for reviewer access
+- Admin capabilities for managing enumeration data
+
+## Tech Stack
+
+- Next.js with React
+- PostgreSQL (Neon Database)
+- Prisma ORM
+- Shopify GraphQL API
+- Tailwind CSS
+- Netlify for deployment
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm or yarn
+- Shopify API credentials
+- Neon PostgreSQL database
+
+### Installation
+
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd spec-builder
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Fill in your credentials
+
+4. Run the development server:
+   ```
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Project Structure
+
+- `/prisma` - Database schema and migrations
+- `/src/app` - Next.js application routes
+- `/src/components` - Reusable React components
+- `/src/lib` - Utility libraries
+- `/src/styles` - Global styles
+
+## Database Schema
+
+The application uses a PostgreSQL database with tables for:
+- Specifications
+- Enumeration tables (product types, brands, grinds, etc.)
+- Users and authentication
+
+## Deployment
+
+### Netlify Deployment
+
+1. Push your code to your Git repository
+
+2. Connect your repository to Netlify:
+   - Go to [Netlify](https://app.netlify.com/)
+   - Click "New site from Git"
+   - Select your Git provider and repository
+   - Leave the base directory blank (or set to `.`)
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+
+3. Configure environment variables in the Netlify dashboard:
+   - Go to Site settings → Build & deploy → Environment
+   - Add all variables from your `.env` file
+   - Add `NEXTAUTH_URL` (your Netlify site URL)
+   - Add `NEXTAUTH_SECRET` (a strong random string)
+
+4. Deploy your database schema:
+   ```
+   npx prisma migrate deploy
+   ```
+
+5. Verify your deployment is working correctly and check server logs if needed
+
+## License
+
+[Add your license here]
+
+
+
+================================================
+FILE: db-schema.txt
+================================================
+DATABASE SCHEMA EXPORT
+======================
+Generated: 2025-05-26T14:51:22.855Z
+
+Total Tables: 18
+
+TABLE: enum_cures
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_cures_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_cures_name_key: CREATE UNIQUE INDEX enum_cures_name_key ON public.enum_cures USING btree (name)
+  enum_cures_pkey: CREATE UNIQUE INDEX enum_cures_pkey ON public.enum_cures USING btree (id)
+
+
+TABLE: enum_experience_levels
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_experience_levels_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_experience_levels_name_key: CREATE UNIQUE INDEX enum_experience_levels_name_key ON public.enum_experience_levels USING btree (name)
+  enum_experience_levels_pkey: CREATE UNIQUE INDEX enum_experience_levels_pkey ON public.enum_experience_levels USING btree (id)
+
+
+TABLE: enum_grinds
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_grinds_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_grinds_name_key: CREATE UNIQUE INDEX enum_grinds_name_key ON public.enum_grinds USING btree (name)
+  enum_grinds_pkey: CREATE UNIQUE INDEX enum_grinds_pkey ON public.enum_grinds USING btree (id)
+
+
+TABLE: enum_moisture_levels
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_moisture_levels_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_moisture_levels_name_key: CREATE UNIQUE INDEX enum_moisture_levels_name_key ON public.enum_moisture_levels USING btree (name)
+  enum_moisture_levels_pkey: CREATE UNIQUE INDEX enum_moisture_levels_pkey ON public.enum_moisture_levels USING btree (id)
+
+
+TABLE: enum_nicotine_levels
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_nicotine_levels_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_nicotine_levels_name_key: CREATE UNIQUE INDEX enum_nicotine_levels_name_key ON public.enum_nicotine_levels USING btree (name)
+  enum_nicotine_levels_pkey: CREATE UNIQUE INDEX enum_nicotine_levels_pkey ON public.enum_nicotine_levels USING btree (id)
+
+
+TABLE: enum_product_brands
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_product_brands_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_product_brands_name_key: CREATE UNIQUE INDEX enum_product_brands_name_key ON public.enum_product_brands USING btree (name)
+  enum_product_brands_pkey: CREATE UNIQUE INDEX enum_product_brands_pkey ON public.enum_product_brands USING btree (id)
+
+
+TABLE: enum_product_types
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_product_types_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_product_types_name_key: CREATE UNIQUE INDEX enum_product_types_name_key ON public.enum_product_types USING btree (name)
+  enum_product_types_pkey: CREATE UNIQUE INDEX enum_product_types_pkey ON public.enum_product_types USING btree (id)
+
+
+TABLE: enum_snuff_types
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_snuff_types_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_snuff_types_name_key: CREATE UNIQUE INDEX enum_snuff_types_name_key ON public.enum_snuff_types USING btree (name)
+  enum_snuff_types_pkey: CREATE UNIQUE INDEX enum_snuff_types_pkey ON public.enum_snuff_types USING btree (id)
+
+
+TABLE: enum_tasting_notes
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_tasting_notes_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_tasting_notes_name_key: CREATE UNIQUE INDEX enum_tasting_notes_name_key ON public.enum_tasting_notes USING btree (name)
+  enum_tasting_notes_pkey: CREATE UNIQUE INDEX enum_tasting_notes_pkey ON public.enum_tasting_notes USING btree (id)
+
+
+TABLE: enum_tobacco_types
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('enum_tobacco_types_id_seq'::regclass) NOT NULL
+  name [character varying(255)] NOT NULL
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  enum_tobacco_types_name_key: CREATE UNIQUE INDEX enum_tobacco_types_name_key ON public.enum_tobacco_types USING btree (name)
+  enum_tobacco_types_pkey: CREATE UNIQUE INDEX enum_tobacco_types_pkey ON public.enum_tobacco_types USING btree (id)
+
+
+TABLE: jotform
+==================================================
+
+COLUMNS:
+  submission_id [character varying(20)] NOT NULL
+  reviewer [character varying(50)]
+  select_product [text]
+  snuff_type [character varying(20)]
+  tobacco [text]
+  moisture [character varying(20)]
+  grind [character varying(20)]
+  nicotine [character varying(20)]
+  ease_of_use [character varying(20)]
+  review [text]
+  star_rating [smallint]
+  cure [text]
+  tasting_notes [text]
+  fermented [boolean] DEFAULT false
+  oral_tobacco [boolean] DEFAULT false
+  artisan [boolean] DEFAULT false
+  rating_boost [smallint]
+  last_updated [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  raw_json [text]
+  created_at [timestamp without time zone]
+  cleaned_product_title [character varying]
+  status [character varying(40)] DEFAULT 'fetched'::character varying NOT NULL
+  status_updated_at [timestamp with time zone] DEFAULT CURRENT_TIMESTAMP
+
+PRIMARY KEYS:
+  No primary keys defined
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  jotform_submission_id_key: CREATE UNIQUE INDEX jotform_submission_id_key ON public.jotform USING btree (submission_id)
+
+
+TABLE: jotform_shopify
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('specifications_staging_id_seq'::regclass) NOT NULL
+  submission_id [character varying] NOT NULL
+  shopify_handle [character varying]
+  product_type [character varying(255)]
+  product_brand [character varying(255)]
+  shopify_title [text]
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  unique_submission_id: CREATE UNIQUE INDEX unique_submission_id ON public.jotform_shopify USING btree (submission_id)
+  jotform_shopify_pkey: CREATE UNIQUE INDEX jotform_shopify_pkey ON public.jotform_shopify USING btree (id)
+
+
+TABLE: spec_cures
+==================================================
+
+COLUMNS:
+  specification_id [integer] NOT NULL
+  enum_cure_id [integer] NOT NULL
+
+PRIMARY KEYS:
+  (specification_id, enum_cure_id)
+
+FOREIGN KEYS:
+  enum_cure_id -> enum_cures(id)
+  specification_id -> specifications(id)
+
+INDEXES:
+  spec_cures_pkey: CREATE UNIQUE INDEX spec_cures_pkey ON public.spec_cures USING btree (specification_id, enum_cure_id)
+
+
+TABLE: spec_tasting_notes
+==================================================
+
+COLUMNS:
+  specification_id [integer] NOT NULL
+  enum_tasting_note_id [integer] NOT NULL
+
+PRIMARY KEYS:
+  (specification_id, enum_tasting_note_id)
+
+FOREIGN KEYS:
+  enum_tasting_note_id -> enum_tasting_notes(id)
+  specification_id -> specifications(id)
+
+INDEXES:
+  spec_tasting_notes_pkey: CREATE UNIQUE INDEX spec_tasting_notes_pkey ON public.spec_tasting_notes USING btree (specification_id, enum_tasting_note_id)
+
+
+TABLE: spec_tobacco_types
+==================================================
+
+COLUMNS:
+  specification_id [integer] NOT NULL
+  enum_tobacco_type_id [integer] NOT NULL
+
+PRIMARY KEYS:
+  (specification_id, enum_tobacco_type_id)
+
+FOREIGN KEYS:
+  enum_tobacco_type_id -> enum_tobacco_types(id)
+  specification_id -> specifications(id)
+
+INDEXES:
+  spec_tobacco_types_pkey: CREATE UNIQUE INDEX spec_tobacco_types_pkey ON public.spec_tobacco_types USING btree (specification_id, enum_tobacco_type_id)
+
+
+TABLE: specifications
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('specifications_id_seq'::regclass) NOT NULL
+  shopify_handle [character varying(255)] NOT NULL
+  product_type_id [integer] NOT NULL
+  is_fermented [boolean] DEFAULT false
+  is_oral_tobacco [boolean] DEFAULT false
+  is_artisan [boolean] DEFAULT false
+  grind_id [integer] NOT NULL
+  nicotine_level_id [integer] NOT NULL
+  experience_level_id [integer] NOT NULL
+  review [text]
+  star_rating [integer] DEFAULT 0
+  rating_boost [integer] DEFAULT 0
+  created_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  updated_at [timestamp without time zone] DEFAULT CURRENT_TIMESTAMP
+  user_id [uuid] NOT NULL
+  moisture_level_id [integer] NOT NULL
+  product_brand_id [integer] NOT NULL
+  submission_id [character varying(20)]
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  product_brand_id -> enum_product_brands(id)
+  experience_level_id -> enum_experience_levels(id)
+  grind_id -> enum_grinds(id)
+  moisture_level_id -> enum_moisture_levels(id)
+  nicotine_level_id -> enum_nicotine_levels(id)
+  product_type_id -> enum_product_types(id)
+  user_id -> users(id)
+
+INDEXES:
+  specifications_pkey: CREATE UNIQUE INDEX specifications_pkey ON public.specifications USING btree (id)
+  idx_specifications_experience_level_id: CREATE INDEX idx_specifications_experience_level_id ON public.specifications USING btree (experience_level_id)
+  idx_specifications_grind_id: CREATE INDEX idx_specifications_grind_id ON public.specifications USING btree (grind_id)
+  idx_specifications_nicotine_level_id: CREATE INDEX idx_specifications_nicotine_level_id ON public.specifications USING btree (nicotine_level_id)
+  idx_specifications_product_brand_id: CREATE INDEX idx_specifications_product_brand_id ON public.specifications USING btree (product_brand_id)
+  idx_specifications_product_type_id: CREATE INDEX idx_specifications_product_type_id ON public.specifications USING btree (product_type_id)
+  idx_specifications_shopify_handle: CREATE INDEX idx_specifications_shopify_handle ON public.specifications USING btree (shopify_handle)
+  specifications_submission_id_key: CREATE UNIQUE INDEX specifications_submission_id_key ON public.specifications USING btree (submission_id)
+  idx_specifications_submission_id: CREATE INDEX idx_specifications_submission_id ON public.specifications USING btree (submission_id)
+
+
+TABLE: transform_log
+==================================================
+
+COLUMNS:
+  id [integer] DEFAULT nextval('transform_log_id_seq'::regclass) NOT NULL
+  log_time [timestamp with time zone] DEFAULT CURRENT_TIMESTAMP
+  submission_id [text]
+  message [text]
+  field [text]
+  value [text]
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  transform_log_pkey: CREATE UNIQUE INDEX transform_log_pkey ON public.transform_log USING btree (id)
+
+
+TABLE: users
+==================================================
+
+COLUMNS:
+  id [uuid] DEFAULT gen_random_uuid() NOT NULL
+  email [text] NOT NULL
+  name [text]
+  role [text] NOT NULL
+  created_at [timestamp with time zone] DEFAULT CURRENT_TIMESTAMP
+  slack_userid [character varying(30)]
+  jotform_name [character varying(100)]
+
+PRIMARY KEYS:
+  (id)
+
+FOREIGN KEYS:
+  No foreign keys defined
+
+INDEXES:
+  users_pkey: CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)
+  idx_user_email: CREATE INDEX idx_user_email ON public.users USING btree (email)
+  idx_user_slack_userid: CREATE INDEX idx_user_slack_userid ON public.users USING btree (slack_userid)
+  users_email_key: CREATE UNIQUE INDEX users_email_key ON public.users USING btree (email)
+
+
+
+
+
+================================================
+FILE: netlify.toml
+================================================
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+
+
+================================================
+FILE: next-env.d.ts
+================================================
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+
+
+
+================================================
+FILE: next.config.js
+================================================
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['cdn.shopify.com'], // Allow images from Shopify CDN
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/auth/login',
+        permanent: false,
+      },
+    ];
+  },
+  // Optimize build for Netlify
+  output: 'standalone',
+  // Enable webpack caching for faster builds
+  webpack: (config, { dev, isServer }) => {
+    // Only enable cache in dev mode
+    if (dev) {
+      config.cache = true;
+    }
+    return config;
+  }
+}
+
+module.exports = nextConfig
+
+
+
+================================================
+FILE: package.json
+================================================
+{
+  "name": "spec-builder",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "postinstall": "prisma generate",
+    "push": "git checkout main && git add . && git commit -m \"Update: Changes made on %DATE% at %TIME%\" && git push origin main",
+    "schema": "node scripts/get-schema.js",
+    "typecheck": "tsc --noEmit",
+    "deploy": "git add . && git commit -m \"Deploy: %DATE% at %TIME%\" && git push origin main"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.6.0",
+    "@prisma/client": "^5.7.0",
+    "autoprefixer": "^10.4.16",
+    "date-fns": "^4.1.0",
+    "graphql": "^16.11.0",
+    "graphql-request": "^7.2.0",
+    "next": "^15.3.3",
+    "postcss": "^8.4.31",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.12.0",
+    "tailwindcss": "^3.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.57",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.29",
+    "prisma": "^5.7.0",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
+
+
+================================================
+FILE: postcss.config.js
+================================================
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+
+
+================================================
+FILE: tailwind.config.js
+================================================
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './src/app/**/*.{js,ts,jsx,tsx}',
+    './src/pages/**/*.{js,ts,jsx,tsx}',
+    './src/components/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'content-bg': '#1E2128',
+        'border': '#343741',
+        'banner': '#FFFFFF',
+        'divider': '#A1A1A1',
+        'button-blue': '#1878B9',
+        'button-green': '#469B3B',
+        'footer-divider': '#343741',
+        'text': '#FFFFFF',
+        'link': '#4693D1',
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      },
+    },
+  },
+  plugins: [],
+}
+
+
+
+================================================
+FILE: tsconfig.json
+================================================
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/styles/*": ["./src/styles/*"],
+      "@/utils/*": ["./src/utils/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
+
+
+================================================
+FILE: .env.example
+================================================
+# Shopify Environment Variables
+SHOPIFY_STORE_URL=your_shopify_store_url
+SHOPIFY_ACCESS_TOKEN=your_shopify_access_token
+SHOPIFY_API_VERSION=your_shopify_api_version
+SHOPIFY_API_KEY=your_shopify_api_key
+SHOPIFY_API_SECRET_KEY=your_shopify_api_secret_key
+
+# Neon Database Variables
+DATABASE_URL=your_neon_database_url
+NEONDB_API_KEY=your_neon_api_key
+
+# Auth Mode (development/production)
+AUTH_MODE=development
+
+
+
+================================================
+FILE: .env.production
+================================================
+# Production environment settings for Netlify
+# These settings ONLY contain non-sensitive fallback values
+# All sensitive values must be set in the Netlify dashboard
+
+# Vercel-specific settings
+VERCEL_URL=${URL}
+NEXT_PUBLIC_VERCEL_URL=${URL}
+
+# Public environment variables
+NEXT_PUBLIC_APP_URL=${URL}
+NEXT_PUBLIC_API_VERSION=${SHOPIFY_API_VERSION}
+
+# Database
+# Note: Actual connection string should be set in Netlify dashboard
+DATABASE_URL=placeholder_replaced_by_netlify_dashboard
+
+# Deployment specific settings
+NODE_ENV=production
+
+
+
+================================================
+FILE: .eslintrc.json
+================================================
+{
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "root": true,
+  "rules": {
+    "no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "import/no-anonymous-default-export": "off"
+  }
+}
+
+
+
+================================================
+FILE: docs/api-queries.md
+================================================
+# API Query Patterns for Spec-Builder
+
+## Overview
+
+This document outlines the correct patterns for querying data in the Spec-Builder API endpoints, particularly focusing on how to properly work with junction tables and related data.
+
+## Specification API Queries
+
+When querying specifications with related data, always follow these patterns:
+
+### Base Fields
+
+```typescript
+// Direct fields
+select: {
+  id: true,
+  shopify_handle: true,
+  review: true,
+  star_rating: true,
+  created_at: true,
+  updated_at: true,
+  // ...other direct fields
+}
+```
+
+### Simple Relations (One-to-Many)
+
+For simple relations where Specification has a foreign key to another table:
+
+```typescript
+// Direct relation - use the relation name
+product_type: {
+  select: {
+    id: true,
+    name: true,
+  },
+},
+product_brand: {
+  select: {
+    id: true,
+    name: true,
+  },
+},
+// ...other direct relations
+```
+
+### Junction Tables (Many-to-Many)
+
+For junction tables (many-to-many relations), you must access the related data through the relationship:
+
+```typescript
+// Junction table relations - use the nested structure
+tasting_notes: {
+  select: {
+    tasting_note: {  // Access via the relation name
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  },
+},
+tobacco_types: {
+  select: {
+    tobacco_type: {  // Access via the relation name
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  },
+},
+cures: {
+  select: {
+    cure: {  // Access via the relation name
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  },
+},
+```
+
+## Component Interface Patterns
+
+When defining interfaces for components that display specification data:
+
+```typescript
+// For junction table data, create wrapper interfaces
+interface TastingNote {
+  id: number;
+  name: string;
+}
+
+interface TastingNoteWrapper {
+  tasting_note: TastingNote;
+}
+
+interface Specification {
+  // ...other fields
+  tasting_notes: TastingNoteWrapper[];
+}
+
+// Access the data correctly in components
+{spec.tasting_notes.map(note => (
+  <span key={note.tasting_note.id}>{note.tasting_note.name}</span>
+))}
+```
+
+By following these patterns consistently, you'll avoid errors related to accessing non-existent fields on junction tables and ensure the API endpoints work correctly with the database schema.
+
+
+
+================================================
+FILE: docs/color-system.md
+================================================
+# Spec Builder Color System
+
+This document outlines the color palette and UI component styling guidelines for the Spec Builder application.
+
+## Color Palette
+
+The application uses a minimalist color palette:
+
+| Name | Hex Code | Usage |
+|------|----------|-------|
+| Content Background | `#1E2128` | Main application background |
+| Card Background | `#161a22` | Card component background |
+| Border | `#343741` | Borders for cards, inputs, and other components |
+| Text | `#FFFFFF` | Primary text color for dark backgrounds |
+| Divider | `#A1A1A1` | Secondary text, dividers, and less important elements |
+| Button Blue | `#1878B9` | Primary action buttons |
+| Button Green | `#469B3B` | Success actions or confirmation buttons |
+| Link | `#4693D1` | Hyperlinks and interactive text elements |
+
+## Component Styling Guidelines
+
+### Cards
+
+Cards should:
+- Use the darker grey background (`#161a22`)
+- Have a border using the border color
+- Include rounded corners and subtle shadow
+- Maintain consistent padding
+
+```jsx
+<Card className="max-w-md">
+  {/* Card content */}
+</Card>
+```
+
+### Form Elements
+
+Form elements (inputs, selects, textareas) should:
+- Have white backgrounds with black text
+- Use consistent border styling
+- Show blue focus rings when active
+
+```jsx
+<input className="input" type="text" />
+<select className="input">
+  {/* Options */}
+</select>
+```
+
+### Typography
+
+Text elements follow a clear hierarchy:
+- `.heading-primary` - Main headings (larger, bold)
+- `.heading-secondary` - Secondary headings (medium size)
+- `.text-meta` - Meta information (smaller size, lighter color)
+
+### Buttons
+
+Buttons use our color palette for clear action hierarchy:
+- Blue buttons for primary actions
+- Green buttons for success/confirmation actions
+
+```jsx
+<button className="btn btn-blue">Primary Action</button>
+<button className="btn btn-green">Confirm</button>
+```
+
+### Tags
+
+Tags use two styles:
+- `.tag-primary` - For highlighting primary information
+- `.tag-secondary` - For secondary or supporting information
+
+## CSS Implementation
+
+The color system is implemented through:
+1. Tailwind color configuration in `tailwind.config.js`
+2. Reusable component classes in `globals.css`
+3. Consistent application in React components
+
+When creating new components, always use the existing color classes and utility classes rather than hardcoding colors.
+
+
+
+================================================
+FILE: docs/deployment-troubleshooting.md
+================================================
+# Deployment Troubleshooting Guide
+
+This document provides solutions for common issues that may occur when deploying the Spec-Builder application to Netlify.
+
+## Common Deployment Issues
+
+### 1. Build Failures
+
+#### Issue: Failed during initialization
+```
+Failed during stage 'Reading and parsing configuration files': 
+When resolving config file /opt/build/repo/netlify.toml:
+Base directory does not exist
+```
+
+**Solution:**
+- Ensure the base directory in your Netlify dashboard settings is blank or set to `.` (not "netlify")
+- Remove any redirects section from your `netlify.toml` that might reference non-existent directories
+- Verify that your package.json is in the root of the repository
+
+#### Issue: Build command fails
+```
+Error: The command "npm run build" exited with code: 1
+```
+
+**Solution:**
+- Check your Node.js version (should be 18+)
+- Ensure all dependencies are properly installed
+- Verify environment variables are correctly set in Netlify
+
+### 2. Database Connection Issues
+
+#### Issue: Cannot connect to database
+```
+Error: P1001: Can't reach database server
+```
+
+**Solution:**
+- Check that your `DATABASE_URL` is correctly set in Netlify environment variables
+- Ensure your Neon database allows connections from Netlify's IP ranges
+- Verify that the database server is running
+
+### 3. Shopify API Issues
+
+#### Issue: Cannot connect to Shopify API
+```
+Error: Request failed with status code 401
+```
+
+**Solution:**
+- Verify all Shopify environment variables are correctly set
+- Check that your Shopify API key and secret are valid
+- Ensure your store URL is correctly formatted
+
+### 4. Routing Issues
+
+#### Issue: Client-side routing doesn't work
+```
+404 errors when navigating to routes directly
+```
+
+**Solution:**
+- Ensure the Next.js plugin is correctly configured in `netlify.toml`
+- Check that your `next.config.js` is properly set up
+- Verify that the publish directory is set to `.next`
+
+## Checking Logs
+
+1. In the Netlify dashboard, go to your site → Deploys
+2. Click on the most recent deploy
+3. Click "Deploy log" to see the detailed build and deployment log
+4. For function logs, go to Functions → Logs
+
+## Redeploying
+
+If you need to redeploy after fixing issues:
+
+1. Push your changes to your Git repository using the deploy script:
+   ```
+   npm run deploy
+   ```
+
+2. Or trigger a manual deploy in the Netlify dashboard:
+   - Go to your site → Deploys
+   - Click "Trigger deploy" → "Deploy site"
+
+## Testing Environment Variables
+
+To verify environment variables are correctly set:
+
+1. Create a temporary API route that returns a sanitized version of the environment
+2. Deploy and test this route
+3. Remove the route after verification
+
+## Local Debugging
+
+Before deploying, test with Netlify CLI locally:
+
+1. Install Netlify CLI:
+   ```
+   npm install -g netlify-cli
+   ```
+
+2. Run locally:
+   ```
+   netlify dev
+   ```
+
+This helps identify issues before deploying to production.
+
+
+
+================================================
+FILE: docs/junction-tables.md
+================================================
+# Working with Junction Tables in Spec-Builder
+
+## Overview
+
+This document describes how to correctly work with junction tables in the Spec-Builder application. Junction tables are used to establish many-to-many relationships between entities.
+
+## Database Schema
+
+In our database, we have several junction tables that follow a common naming pattern:
+
+- `spec_tobacco_types`: Links specifications with tobacco types
+- `spec_tasting_notes`: Links specifications with tasting notes
+- `spec_cures`: Links specifications with cures
+
+Each junction table contains foreign keys to the related tables:
+
+```
+TABLE: spec_tasting_notes
+==================================================
+
+COLUMNS:
+  specification_id [integer] NOT NULL
+  enum_tasting_note_id [integer] NOT NULL
+
+PRIMARY KEYS:
+  (specification_id, enum_tasting_note_id)
+
+FOREIGN KEYS:
+  enum_tasting_note_id -> enum_tasting_notes(id)
+  specification_id -> specifications(id)
+```
+
+## Prisma Schema
+
+In the Prisma schema, these relationships are modeled as follows:
+
+```prisma
+model Specification {
+  // ... other fields
+  tasting_notes      SpecTastingNote[]
+  tobacco_types      SpecTobaccoType[]
+  cures              SpecCure[]
+}
+
+model TastingNote {
+  // ... other fields
+  specifications SpecTastingNote[]
+}
+
+model SpecTastingNote {
+  specification_id     Int
+  enum_tasting_note_id Int
+  specification        Specification @relation(fields: [specification_id], references: [id])
+  tasting_note         TastingNote  @relation(fields: [enum_tasting_note_id], references: [id])
+
+  @@id([specification_id, enum_tasting_note_id])
+  @@map("spec_tasting_notes")
+}
+```
+
+## Querying Junction Tables
+
+When querying junction tables through Prisma, you must access the related entity through the relationship field. **Do not** try to access fields directly on the junction table that don't exist.
+
+### ❌ Incorrect way:
+
+```typescript
+const specifications = await prisma.specification.findMany({
+  select: {
+    tasting_notes: {
+      select: {
+        id: true,  // These fields don't exist on SpecTastingNote
+        name: true,
+      },
+    },
+  },
+});
+```
+
+### ✅ Correct way:
+
+```typescript
+const specifications = await prisma.specification.findMany({
+  select: {
+    tasting_notes: {
+      select: {
+        tasting_note: {  // Access the related entity
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    },
+  },
+});
+```
+
+## Component Interfaces
+
+When working with the data in React components, create appropriate interfaces:
+
+```typescript
+interface TastingNote {
+  id: number;
+  name: string;
+}
+
+interface TastingNoteWrapper {
+  tasting_note: TastingNote;
+}
+
+interface Specification {
+  // ... other fields
+  tasting_notes: TastingNoteWrapper[];
+}
+```
+
+And access the data correctly:
+
+```tsx
+{spec.tasting_notes.map(note => (
+  <span key={note.tasting_note.id}>
+    {note.tasting_note.name}
+  </span>
+))}
+```
+
+By following these patterns, you'll avoid errors related to accessing non-existent fields on junction tables.
+
+
+
+================================================
+FILE: prisma/schema.prisma
+================================================
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String          @unique
+  name         String?
+  role         String
+  created_at   DateTime        @default(now()) @db.Timestamptz
+  slack_userid String?         @db.VarChar(30)
+  jotform_name String?         @db.VarChar(100)
+  specifications Specification[]
+
+  @@map("users")
+  @@index([email], name: "idx_user_email")
+  @@index([slack_userid], name: "idx_user_slack_userid")
+}
+
+// Specification model
+model Specification {
+  id                 Int              @id @default(autoincrement())
+  shopify_handle     String           @db.VarChar(255)
+  product_type_id    Int
+  is_fermented       Boolean          @default(false)
+  is_oral_tobacco    Boolean          @default(false)
+  is_artisan         Boolean          @default(false)
+  grind_id           Int
+  nicotine_level_id  Int
+  experience_level_id Int
+  review             String?          @db.Text
+  star_rating        Int              @default(0)
+  rating_boost       Int              @default(0)
+  created_at         DateTime         @default(now()) @db.Timestamp
+  updated_at         DateTime         @default(now()) @db.Timestamp
+  user_id            String           @db.Uuid
+  moisture_level_id  Int
+  product_brand_id   Int
+  submission_id      String?          @db.VarChar(20)
+
+  // Relations
+  user               User             @relation(fields: [user_id], references: [id])
+  product_type       ProductType      @relation(fields: [product_type_id], references: [id])
+  product_brand      ProductBrand     @relation(fields: [product_brand_id], references: [id])
+  grind              Grind            @relation(fields: [grind_id], references: [id])
+  moisture_level     MoistureLevel    @relation(fields: [moisture_level_id], references: [id])
+  nicotine_level     NicotineLevel    @relation(fields: [nicotine_level_id], references: [id])
+  experience_level   ExperienceLevel  @relation(fields: [experience_level_id], references: [id])
+  tobacco_types      SpecTobaccoType[]
+  tasting_notes      SpecTastingNote[]
+  cures              SpecCure[]
+
+  @@map("specifications")
+  @@index([shopify_handle], name: "idx_specifications_shopify_handle")
+  @@index([product_type_id], name: "idx_specifications_product_type_id")
+  @@index([product_brand_id], name: "idx_specifications_product_brand_id")
+  @@index([grind_id], name: "idx_specifications_grind_id")
+  @@index([nicotine_level_id], name: "idx_specifications_nicotine_level_id")
+  @@index([experience_level_id], name: "idx_specifications_experience_level_id")
+  @@unique([submission_id], name: "specifications_submission_id_key")
+  @@index([submission_id], name: "idx_specifications_submission_id")
+}
+
+// Enum tables
+model ProductType {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_product_types")
+}
+
+model ProductBrand {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_product_brands")
+}
+
+model Grind {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_grinds")
+}
+
+model MoistureLevel {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_moisture_levels")
+}
+
+model NicotineLevel {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_nicotine_levels")
+}
+
+model ExperienceLevel {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(255)
+  created_at    DateTime        @default(now()) @db.Timestamp
+  updated_at    DateTime        @default(now()) @db.Timestamp
+  specifications Specification[]
+
+  @@map("enum_experience_levels")
+}
+
+model TobaccoType {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique @db.VarChar(255)
+  created_at    DateTime         @default(now()) @db.Timestamp
+  updated_at    DateTime         @default(now()) @db.Timestamp
+  specifications SpecTobaccoType[]
+
+  @@map("enum_tobacco_types")
+}
+
+model TastingNote {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique @db.VarChar(255)
+  created_at    DateTime         @default(now()) @db.Timestamp
+  updated_at    DateTime         @default(now()) @db.Timestamp
+  specifications SpecTastingNote[]
+
+  @@map("enum_tasting_notes")
+}
+
+model Cure {
+  id            Int              @id @default(autoincrement())
+  name          String           @unique @db.VarChar(255)
+  created_at    DateTime         @default(now()) @db.Timestamp
+  updated_at    DateTime         @default(now()) @db.Timestamp
+  specifications SpecCure[]
+
+  @@map("enum_cures")
+}
+
+// Junction tables
+model SpecTobaccoType {
+  specification_id     Int
+  enum_tobacco_type_id Int
+  specification        Specification @relation(fields: [specification_id], references: [id])
+  tobacco_type         TobaccoType  @relation(fields: [enum_tobacco_type_id], references: [id])
+
+  @@id([specification_id, enum_tobacco_type_id])
+  @@map("spec_tobacco_types")
+}
+
+model SpecTastingNote {
+  specification_id     Int
+  enum_tasting_note_id Int
+  specification        Specification @relation(fields: [specification_id], references: [id])
+  tasting_note         TastingNote  @relation(fields: [enum_tasting_note_id], references: [id])
+
+  @@id([specification_id, enum_tasting_note_id])
+  @@map("spec_tasting_notes")
+}
+
+model SpecCure {
+  specification_id Int
+  enum_cure_id     Int
+  specification    Specification @relation(fields: [specification_id], references: [id])
+  cure             Cure         @relation(fields: [enum_cure_id], references: [id])
+
+  @@id([specification_id, enum_cure_id])
+  @@map("spec_cures")
+}
+
+
+
+================================================
+FILE: scripts/get-schema.js
+================================================
+/**
+ * Database Schema Extraction Script
+ * 
+ * This script connects to the database using the existing db.js module
+ * and extracts the complete database schema, including:
+ * - Tables
+ * - Columns and their data types
+ * - Constraints (Primary Keys, Foreign Keys, Unique)
+ * - Indexes
+ * 
+ * The output is written to db-schema.txt
+ */
+
+const fs = require('fs');
+const path = require('path');
+const db = require('../lib/db');
+
+async function getTableSchema(client, tableName) {
+  // Get columns
+  const columnsQuery = `
+    SELECT 
+      column_name, 
+      data_type, 
+      character_maximum_length,
+      column_default,
+      is_nullable
+    FROM 
+      information_schema.columns
+    WHERE 
+      table_name = $1
+    ORDER BY 
+      ordinal_position
+  `;
+  
+  const columnsResult = await client.query(columnsQuery, [tableName]);
+  
+  // Get primary keys
+  const pkQuery = `
+    SELECT
+      kcu.column_name
+    FROM
+      information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+    WHERE
+      tc.constraint_type = 'PRIMARY KEY'
+      AND tc.table_name = $1
+    ORDER BY
+      kcu.ordinal_position
+  `;
+  
+  const pkResult = await client.query(pkQuery, [tableName]);
+  
+  // Get foreign keys
+  const fkQuery = `
+    SELECT
+      kcu.column_name,
+      ccu.table_name AS foreign_table_name,
+      ccu.column_name AS foreign_column_name
+    FROM
+      information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+      JOIN information_schema.constraint_column_usage ccu
+        ON tc.constraint_name = ccu.constraint_name
+    WHERE
+      tc.constraint_type = 'FOREIGN KEY'
+      AND tc.table_name = $1
+  `;
+  
+  const fkResult = await client.query(fkQuery, [tableName]);
+  
+  // Get indexes
+  const indexQuery = `
+    SELECT
+      indexname,
+      indexdef
+    FROM
+      pg_indexes
+    WHERE
+      tablename = $1
+  `;
+  
+  const indexResult = await client.query(indexQuery, [tableName]);
+  
+  return {
+    tableName,
+    columns: columnsResult.rows,
+    primaryKeys: pkResult.rows,
+    foreignKeys: fkResult.rows,
+    indexes: indexResult.rows
+  };
+}
+
+async function getAllTables(client) {
+  const tablesQuery = `
+    SELECT 
+      table_name
+    FROM 
+      information_schema.tables
+    WHERE 
+      table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    ORDER BY
+      table_name
+  `;
+  
+  const result = await client.query(tablesQuery);
+  return result.rows.map(row => row.table_name);
+}
+
+function formatSchema(schema) {
+  let output = '';
+  
+  // Table header
+  output += `TABLE: ${schema.tableName}\n`;
+  output += '='.repeat(50) + '\n\n';
+  
+  // Columns
+  output += 'COLUMNS:\n';
+  if (schema.columns.length === 0) {
+    output += '  No columns found\n';
+  } else {
+    schema.columns.forEach(column => {
+      let typeInfo = column.data_type;
+      if (column.character_maximum_length) {
+        typeInfo += `(${column.character_maximum_length})`;
+      }
+      
+      output += `  ${column.column_name} [${typeInfo}]`;
+      
+      if (column.column_default) {
+        output += ` DEFAULT ${column.column_default}`;
+      }
+      
+      if (column.is_nullable === 'NO') {
+        output += ' NOT NULL';
+      }
+      
+      output += '\n';
+    });
+  }
+  
+  // Primary Keys
+  output += '\nPRIMARY KEYS:\n';
+  if (schema.primaryKeys.length === 0) {
+    output += '  No primary keys defined\n';
+  } else {
+    const pkColumns = schema.primaryKeys.map(pk => pk.column_name).join(', ');
+    output += `  (${pkColumns})\n`;
+  }
+  
+  // Foreign Keys
+  output += '\nFOREIGN KEYS:\n';
+  if (schema.foreignKeys.length === 0) {
+    output += '  No foreign keys defined\n';
+  } else {
+    schema.foreignKeys.forEach(fk => {
+      output += `  ${fk.column_name} -> ${fk.foreign_table_name}(${fk.foreign_column_name})\n`;
+    });
+  }
+  
+  // Indexes
+  output += '\nINDEXES:\n';
+  if (schema.indexes.length === 0) {
+    output += '  No indexes defined\n';
+  } else {
+    schema.indexes.forEach(index => {
+      output += `  ${index.indexname}: ${index.indexdef}\n`;
+    });
+  }
+  
+  output += '\n\n';
+  return output;
+}
+
+async function main() {
+  let client;
+  try {
+    // Get client from pool
+    client = await db.getClient();
+    
+    // Get all tables
+    const tables = await getAllTables(client);
+    
+    // Output header
+    let output = `DATABASE SCHEMA EXPORT\n`;
+    output += `======================\n`;
+    output += `Generated: ${new Date().toISOString()}\n\n`;
+    output += `Total Tables: ${tables.length}\n\n`;
+    
+    // If no tables found
+    if (tables.length === 0) {
+      output += 'No tables found in the database.\n';
+    } else {
+      // Process each table
+      for (const tableName of tables) {
+        const tableSchema = await getTableSchema(client, tableName);
+        output += formatSchema(tableSchema);
+      }
+    }
+    
+    // Write to file
+    const outputPath = path.resolve(process.cwd(), 'db-schema.txt');
+    fs.writeFileSync(outputPath, output);
+    
+    console.log(`Schema successfully exported to ${outputPath}`);
+    
+  } catch (error) {
+    console.error('Error extracting database schema:', error);
+    process.exit(1);
+  } finally {
+    if (client) {
+      await client.release();
+    }
+    // Close the pool to end the process
+    await db.pool.end();
+  }
+}
+
+// Run the script
+main();
+
+
+
+================================================
+FILE: scripts/setup-netlify.js
+================================================
+/**
+ * This script helps set up environment variables for Netlify deployment
+ * Run with: node scripts/setup-netlify.js
+ */
+
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+// Colors for console output
+const colors = {
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  red: '\x1b[31m',
+  blue: '\x1b[34m'
+};
+
+console.log(`${colors.blue}Spec-Builder - Netlify Setup Helper${colors.reset}`);
+console.log('This script will help you prepare your environment variables for Netlify deployment.\n');
+
+const requiredVars = [
+  { name: 'SHOPIFY_STORE_URL', description: 'Your Shopify store URL (e.g., https://your-store.myshopify.com)' },
+  { name: 'SHOPIFY_ACCESS_TOKEN', description: 'Your Shopify Admin API access token' },
+  { name: 'SHOPIFY_API_VERSION', description: 'Shopify API version (e.g., 2025-01)' },
+  { name: 'SHOPIFY_API_KEY', description: 'Your Shopify API key' },
+  { name: 'SHOPIFY_API_SECRET_KEY', description: 'Your Shopify API secret key' },
+  { name: 'DATABASE_URL', description: 'Your Neon Database connection string' },
+  { name: 'NEXTAUTH_SECRET', description: 'A random string for NextAuth security (generate with: openssl rand -base64 32)' }
+];
+
+// Generate a Netlify environment variables file for manual copy-paste
+const generateNetlifyEnvFile = (variables) => {
+  const outputPath = path.join(__dirname, '..', 'netlify-env-variables.txt');
+  
+  let content = '# Netlify Environment Variables\n';
+  content += '# Copy these to your Netlify site dashboard: Site settings → Build & deploy → Environment\n\n';
+  
+  for (const [key, value] of Object.entries(variables)) {
+    content += `${key}=${value}\n`;
+  }
+  
+  content += '\n# Don\'t forget to add NEXTAUTH_URL with your actual deployed site URL once available\n';
+  content += '# NEXTAUTH_URL=https://your-netlify-site.netlify.app\n';
+  
+  fs.writeFileSync(outputPath, content);
+  console.log(`${colors.green}Environment variables saved to:${colors.reset} netlify-env-variables.txt`);
+  console.log(`${colors.yellow}IMPORTANT: This file contains sensitive information. Do not commit it to your repository.${colors.reset}`);
+};
+
+// Main function to collect variables
+const collectVariables = async () => {
+  const variables = {};
+  
+  console.log(`${colors.yellow}Please provide the following environment variables:${colors.reset}`);
+  
+  // Read existing variables from .env file if available
+  try {
+    const envPath = path.join(__dirname, '..', '.env');
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      envContent.split('\n').forEach(line => {
+        if (line && !line.startsWith('#')) {
+          const [key, ...valueParts] = line.split('=');
+          if (key && valueParts.length) {
+            variables[key.trim()] = valueParts.join('=').trim();
+          }
+        }
+      });
+      console.log(`${colors.green}Loaded existing variables from .env file${colors.reset}`);
+    }
+  } catch (error) {
+    console.log(`${colors.yellow}Could not read .env file: ${error.message}${colors.reset}`);
+  }
+  
+  // Ask for each required variable
+  for (const varInfo of requiredVars) {
+    const defaultValue = variables[varInfo.name] || '';
+    
+    await new Promise(resolve => {
+      rl.question(`${varInfo.name} (${varInfo.description}) ${defaultValue ? `[${defaultValue}]` : ''}: `, (answer) => {
+        variables[varInfo.name] = answer || defaultValue;
+        resolve();
+      });
+    });
+  }
+  
+  // Generate unique NEXTAUTH_SECRET if not provided
+  if (!variables.NEXTAUTH_SECRET || variables.NEXTAUTH_SECRET === '') {
+    variables.NEXTAUTH_SECRET = require('crypto').randomBytes(32).toString('hex');
+    console.log(`${colors.green}Generated random NEXTAUTH_SECRET${colors.reset}`);
+  }
+  
+  return variables;
+};
+
+// Main execution
+collectVariables().then(variables => {
+  generateNetlifyEnvFile(variables);
+  
+  console.log(`\n${colors.green}Setup complete!${colors.reset}`);
+  console.log('Next steps:');
+  console.log('1. Copy variables from netlify-env-variables.txt to your Netlify dashboard');
+  console.log('2. Set NEXTAUTH_URL to your Netlify site URL once deployed');
+  console.log('3. Deploy your site using: npm run deploy');
+  
+  rl.close();
+}).catch(error => {
+  console.error(`${colors.red}Error: ${error.message}${colors.reset}`);
+  rl.close();
+});
+
+
+
+================================================
+FILE: scripts/test-db.js
+================================================
+const db = require('../lib/db');
+
+async function testDatabaseConnection() {
+  console.log('Testing database connection...');
+  
+  // Test 1: Test connection using testConnection()
+  console.log('\n--- Test 1: Testing connection using testConnection() ---');
+  const connectionTest = await db.testConnection();
+  console.log(`Connection test ${connectionTest ? 'succeeded' : 'failed'}`);
+  
+  if (!connectionTest) {
+    console.error('Failed to connect to the database. Please check your connection settings.');
+    process.exit(1);
+  }
+  
+  // Test 2: Test a simple query using pool.query
+  console.log('\n--- Test 2: Testing simple query using pool.query ---');
+  try {
+    const result = await db.query('SELECT NOW() as current_time');
+    console.log('Current database time:', result.rows[0].current_time);
+  } catch (error) {
+    console.error('Error executing query with pool.query:', error);
+  }
+  
+  // Test 3: Test getting a client and running a transaction
+  console.log('\n--- Test 3: Testing client connection and transaction ---');
+  const client = await db.getClient();
+  
+  try {
+    // Start a transaction
+    await client.query('BEGIN');
+    
+    // Test a simple query
+    const versionResult = await client.query('SELECT version()');
+    console.log('Database version:', versionResult.rows[0].version.split(' ')[0]);
+    
+    // Test listing tables
+    const tablesResult = await client.query(
+      `SELECT table_name 
+       FROM information_schema.tables 
+       WHERE table_schema = 'public'`
+    );
+    
+    console.log('\nAvailable tables:');
+    tablesResult.rows.forEach((row, i) => {
+      console.log(`${i + 1}. ${row.table_name}`);
+    });
+    
+    // Rollback since we're just testing
+    await client.query('ROLLBACK');
+    console.log('\nTransaction rolled back (this is expected for testing)');
+  } catch (error) {
+    console.error('Error during transaction:', error);
+    await client.query('ROLLBACK');
+  } finally {
+    // Always release the client back to the pool
+    client.release();
+    console.log('\nClient released back to the pool');
+  }
+  
+  // Test 4: Test error handling
+  console.log('\n--- Test 4: Testing error handling ---');
+  try {
+    // This should fail with a syntax error
+    await db.query('SELECT * FROM non_existent_table');
+  } catch (error) {
+    console.log('Expected error caught (this is good):', error.message);
+  }
+  
+  console.log('\nAll tests completed!');
+  process.exit(0);
+}
+
+// Run the tests
+testDatabaseConnection().catch(error => {
+  console.error('Unhandled error during tests:', error);
+  process.exit(1);
+});
+
+
+
+================================================
+FILE: src/app/layout.tsx
+================================================
+import '@/styles/globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { AuthProvider } from '@/lib/auth/context'
+import { DataProvider } from '@/lib/data-management/DataProvider'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'Spec Builder',
+  description: 'A tool for building tobacco snuff product specifications',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body className={`${inter.className} bg-content-bg text-text min-h-screen`}>
+        <AuthProvider>
+          <DataProvider>
+            {children}
+          </DataProvider>
+        </AuthProvider>
+      </body>
+    </html>
+  )
+}
+
+
+
+================================================
+FILE: src/app/page.tsx
+================================================
+import Link from 'next/link'
+
+export default function Home() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24">
+      <div className="card max-w-3xl w-full text-center">
+        <h1 className="text-3xl font-bold mb-4">Spec Builder</h1>
+        <p className="mb-8">A tool for managing tobacco snuff product specifications</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <Link href="/auth/login" className="btn btn-blue w-full">
+            Login
+          </Link>
+          <Link href="/specifications" className="btn btn-green w-full">
+            View Specifications
+          </Link>
+        </div>
+        
+        <div className="text-sm text-divider">
+          <p>Access your product specifications and contribute to our product knowledge base</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+
+
+================================================
+FILE: src/app/api/auth/user/[id]/route.ts
+================================================
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma/client';
+
+export async function GET(request: NextRequest) {
+  try {
+    // Extract the ID from the URL pathname
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    // For development mode, allow using simple auth
+    // Note: bypassing the environment check for demo purposes
+    // Find user by ID
+    const user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        slack_userid: true,
+        jotform_name: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch user' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/auth/users/route.ts
+================================================
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma/client';
+
+// GET /api/auth/users - Fetch all users for dev login
+export async function GET() {
+  try {
+    // In a real application, this would be protected, but for our demo we'll allow it
+    // (The environment variable isn't being properly read)
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+
+    return NextResponse.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch users' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/brands/route.ts
+================================================
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma/client';
+
+export async function GET() {
+  try {
+    // Fetch all brands from the enum_product_brands table
+    const brands = await prisma.productBrand.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    
+    // Return all brands from the database
+
+    return NextResponse.json(brands);
+  } catch (error) {
+    console.error('Error fetching brands:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch brands', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/products/available/route.ts
+================================================
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma/client';
+import { fetchAvailableProducts } from '@/lib/shopify/api';
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get('userId');
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // 1. First get all product handles that already have specifications
+    const existingSpecifications = await prisma.specification.findMany({
+      where: {
+        user_id: userId,
+      },
+      select: {
+        shopify_handle: true,
+      },
+    });
+
+    // Extract just the handles
+    const existingHandles = existingSpecifications.map((spec: { shopify_handle: string }) => spec.shopify_handle);
+
+    // 2. Fetch products from Shopify API using our GraphQL client
+    // This will automatically exclude products that already have specifications
+    // Brand metafield is required - no fallback to vendor
+    let availableProducts;
+    try {
+      availableProducts = await fetchAvailableProducts(existingHandles, limit);
+    } catch (error) {
+      console.error('Shopify GraphQL API error:', error);
+      // Handle specific error for missing custom.brands metafields
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isBrandMetafieldError = errorMessage.includes('missing required custom.brands metafield');
+      
+      return NextResponse.json(
+        { 
+          error: isBrandMetafieldError ? 
+            'One or more products are missing required custom.brands metafields in Shopify' : 
+            'Failed to fetch products from Shopify', 
+          details: errorMessage 
+        },
+        { status: isBrandMetafieldError ? 400 : 500 }
+      );
+    }
+
+    // Transform data to match our frontend interface
+    const formattedProducts = availableProducts.map((product: {
+      id: string;
+      handle: string;
+      title: string;
+      vendor: string;
+      brand: string;
+      image_url: string | null;
+      product_url: string;
+    }) => ({
+      id: product.id,
+      handle: product.handle,
+      title: product.title,
+      brand: product.brand, // Brand value comes exclusively from custom.brands metafield - no vendor fallback
+      imageUrl: product.image_url || '/images/placeholder-product.png', // Fallback image
+      productUrl: product.product_url,
+    }));
+    
+    // Return the formatted products
+
+    return NextResponse.json(formattedProducts);
+  } catch (error) {
+    console.error('Error fetching available products:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch available products' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/products/batch/route.ts
+================================================
+import { NextRequest, NextResponse } from 'next/server';
+import { fetchProductsBatch } from '@/lib/shopify/api';
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const cursor = searchParams.get('cursor') || undefined;
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : 25; // Default batch size of 25
+    
+    // Fetch products in batches with cursor-based pagination
+    const { products, nextCursor, hasNextPage } = await fetchProductsBatch(cursor, limit);
+    
+    return NextResponse.json({
+      products,
+      nextCursor,
+      hasNextPage
+    });
+  } catch (error) {
+    console.error('Error fetching product batch:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch product batch' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/products/byHandles/route.ts
+================================================
+import { NextRequest, NextResponse } from 'next/server';
+import { fetchProductsByHandles } from '@/lib/shopify/api';
+
+// Support GET requests (the frontend is using GET)
+export async function GET(request: NextRequest) {
+  try {
+    const url = new URL(request.url);
+    const handlesParam = url.searchParams.get('handles');
+    
+    if (!handlesParam) {
+      return NextResponse.json(
+        { error: 'handles parameter is required' },
+        { status: 400 }
+      );
+    }
+    
+    let handles: string[];
+    try {
+      handles = JSON.parse(handlesParam);
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid handles JSON format' },
+        { status: 400 }
+      );
+    }
+    
+    if (!Array.isArray(handles) || handles.length === 0) {
+      return NextResponse.json(
+        { error: 'Valid product handles array is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Limit to reasonable batch size
+    const limitedHandles = handles.slice(0, 25);
+    
+    const products = await fetchProductsByHandles(limitedHandles);
+    
+    return NextResponse.json(products);
+  } catch (error) {
+    console.error('Error fetching products by handles (GET):', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch products by handles' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { handles } = body;
+    
+    if (!handles || !Array.isArray(handles) || handles.length === 0) {
+      return NextResponse.json(
+        { error: 'Valid product handles array is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Limit to reasonable batch size
+    const limitedHandles = handles.slice(0, 25);
+    
+    const products = await fetchProductsByHandles(limitedHandles);
+    
+    return NextResponse.json(products);
+  } catch (error) {
+    console.error('Error fetching products by handles:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch products by handles' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/products/titles/route.ts
+================================================
+import { NextRequest, NextResponse } from 'next/server';
+import { fetchProductTitles } from '@/lib/shopify/api';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { handles } = await request.json();
+    
+    if (!handles || !Array.isArray(handles)) {
+      return NextResponse.json(
+        { error: 'Valid handles array is required' },
+        { status: 400 }
+      );
+    }
+
+    const productTitles = await fetchProductTitles(handles);
+    return NextResponse.json(productTitles);
+  } catch (error) {
+    console.error('Error fetching product titles:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch product titles', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/api/specifications/route.ts
+================================================
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma/client';
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get('userId');
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const specifications = await prisma.specification.findMany({
+      where: {
+        user_id: userId,
+      },
+      select: {
+        id: true,
+        shopify_handle: true,
+        review: true,
+        star_rating: true,
+        created_at: true,
+        updated_at: true,
+        product_type: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        product_brand: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        tasting_notes: {
+          select: {
+            tasting_note: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        grind: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        moisture_level: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        nicotine_level: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        experience_level: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        tobacco_types: {
+          select: {
+            tobacco_type: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        cures: {
+          select: {
+            cure: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+      ...(limit ? { take: limit } : {}),
+    });
+
+    return NextResponse.json(specifications);
+  } catch (error) {
+    console.error('Error fetching specifications:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch specifications' },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+================================================
+FILE: src/app/auth/login/page.tsx
+================================================
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/context';
+import { useLoading } from '@/lib/loading/context';
+import { useProductCache } from '@/lib/data-management/productCache';
+import { useSpecificationCache } from '@/lib/data-management/specificationCache';
+import Card from '@/components/ui/Card';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
+export default function LoginPage() {
+  const [users, setUsers] = useState<Array<{id: string, name: string | null, email: string, role: string}>>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [isPreloadingProducts, setIsPreloadingProducts] = useState<boolean>(false);
+  
+  // Track if product preloading has started
+  const preloadingStartedRef = useRef<boolean>(false);
+  
+  const router = useRouter();
+  const auth = useAuth();
+  const { startLoading, stopLoading, isLoadingSection } = useLoading();
+  const { preloadProducts } = useProductCache();
+  const { resetCache: resetSpecCache } = useSpecificationCache();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (auth.user) {
+      router.push('/specifications');
+    }
+  }, [auth.user, router]);
+  
+  // Fetch available users for development mode
+  useEffect(() => {
+    const fetchUsers = async () => {
+      startLoading('fetchUsers');
+      try {
+        const response = await fetch('/api/auth/users');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        
+        const data = await response.json();
+        setUsers(data);
+        
+        // Start preloading products after users are loaded
+        if (!preloadingStartedRef.current) {
+          preloadingStartedRef.current = true;
+          setIsPreloadingProducts(true);
+          preloadProducts()
+            .catch(e => console.error('Error preloading products:', e))
+            .finally(() => setIsPreloadingProducts(false));
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load users');
+      } finally {
+        stopLoading('fetchUsers');
+      }
+    };
+    
+    fetchUsers();
+  }, [startLoading, stopLoading, preloadProducts]);
+  
+  // Handle login
+  const handleLogin = async () => {
+    if (!selectedUserId) {
+      setError('Please select a user');
+      return;
+    }
+    
+    setError(null);
+    setIsLoggingIn(true);
+    startLoading('login');
+    
+    try {
+      // Start loading specifications as soon as login is clicked
+      // This will happen in parallel with the authentication
+      resetSpecCache();
+      
+      // Authenticate the user
+      await auth.login(selectedUserId);
+      
+      // Redirect to specifications page
+      router.push('/specifications');
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Login failed');
+      setIsLoggingIn(false);
+      stopLoading('login');
+    }
+  };
+  
+  // If already logged in, show nothing (will redirect)
+  if (auth.user) {
+    return null;
+  }
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-content-bg">
+      <Card className="max-w-md w-full mx-auto relative">
+        {/* Full card overlay for loading users */}
+        {isLoadingSection('fetchUsers') && (
+          <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 rounded pointer-events-auto">
+            <LoadingSpinner text="Loading users..." size="medium" />
+          </div>
+        )}
+        
+        <div className="text-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-text">Spec Builder</h1>
+          <p className="text-divider mt-2">Select a user to continue</p>
+        </div>
+        
+        {error ? (
+          <div className="border border-red-400 bg-red-400 bg-opacity-10 text-text px-4 py-3 rounded mb-4" role="alert">
+            <p className="font-medium">Error</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        ) : null}
+
+        <div className="mb-6">
+          <label htmlFor="user-select" className="block mb-2 text-sm font-medium text-text">
+            Select User (Development Mode)
+          </label>
+          <select
+            id="user-select"
+            className="input block w-full text-sm"
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+            disabled={isLoggingIn || isLoadingSection('fetchUsers')}
+          >
+            <option value="">-- Select a user --</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name || user.email} ({user.role})
+              </option>
+            ))}
+          </select>
+          <p className="mt-2 text-meta">
+            This simplified login is for development purposes only.
+          </p>
+          {/* Removed background preloading indicator */}
+        </div>
+            
+        <div className="flex justify-center">
+          <button
+            className={`btn btn-blue w-full py-3 ${isLoggingIn ? 'opacity-75 cursor-not-allowed' : ''}`}
+            onClick={handleLogin}
+            disabled={!selectedUserId || isLoggingIn || isLoadingSection('login')}
+          >
+            {isLoggingIn || isLoadingSection('login') ? (
+              <span className="flex items-center justify-center">
+                <LoadingSpinner size="small" inline={true} />
+                <span className="ml-2">Logging in...</span>
+              </span>
+            ) : 'Login'}
+          </button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+
+
+================================================
+FILE: src/app/specifications/page.tsx
+================================================
+'use client';
+
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import AppLayout from '@/components/layout/AppLayout';
+import ProductCard from '@/components/products/ProductCard';
+import SpecificationCard from '@/components/specifications/SpecificationCard';
+import Card from '@/components/ui/Card';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Search from '@/components/ui/Search';
+import TabGroup, { Tab } from '@/components/ui/TabGroup';
+import { useAuth } from '@/lib/auth/context';
+import { useProductCache } from '@/lib/data-management/productCache';
+import { useSpecificationCache } from '@/lib/data-management/specificationCache';
+import { useLoading } from '@/lib/loading/context';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+interface TastingNote {
+  id: number;
+  name: string;
+}
+
+interface TastingNoteWrapper {
+  tasting_note: TastingNote;
+}
+
+interface TobaccoType {
+  id: number;
+  name: string;
+}
+
+interface Cure {
+  id: number;
+  name: string;
+}
+
+// We use the Specification type from data-management/types.ts for all operations
+// The TastingNote, TobaccoType and Cure interfaces are only needed for component props
+
+// Tab identifiers
+const TABS = {
+  SPECIFICATIONS: 'specifications',
+  PRODUCTS: 'products'
+};
+
+export default function SpecificationsPage() {
+  const router = useRouter();
+  const { startLoading, stopLoading, isLoadingSection } = useLoading();
+  const { user } = useAuth();
+
+  // Use our data management contexts
+  const productCache = useProductCache();
+  const { state: productState, getProduct, preloadProducts } = productCache;
+
+  const specCache = useSpecificationCache();
+  const { state: specState, getSpecificationsSortedByCompleteness, fetchSpecifications } = specCache;
+
+  // State for tab management
+  const [activeTab, setActiveTab] = useState<string>(TABS.SPECIFICATIONS);
+
+  // Extract data from context states
+  const products = useMemo(() => Array.from(productState.products.values()), [productState.products]);
+  const specifications = useMemo(() => getSpecificationsSortedByCompleteness(), [getSpecificationsSortedByCompleteness]);
+  const specLoading = specState.isLoading || isLoadingSection('specifications');
+  const specError = specState.error;
+  const productLoading = productState.isLoadingBatch || isLoadingSection('products');
+  const productError = productState.error;
+
+  // State for database brands
+  const [dbBrands, setDbBrands] = useState<Array<{ id: number, name: string }>>([]);
+  const [brandsLoading, setBrandsLoading] = useState<boolean>(true);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+
+  // Filter state
+  const [brandFilter, setBrandFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Derived lists of unique brands for filter dropdowns
+  const specBrands = useMemo(() => {
+    const brands = specifications
+      .filter(spec => spec.product_brand) // Filter out specs with null product_brand
+      .map(spec => spec.product_brand!.name);
+    return Array.from(new Set(brands)).sort().map(name => ({ id: name, label: name }));
+  }, [specifications]);
+
+  // Use the database brands for the product dropdown
+  const productBrands = useMemo(() => {
+    return dbBrands.map(brand => ({ id: brand.name, label: brand.name }));
+  }, [dbBrands]);
+
+  // Helper function for brand matching with case insensitive comparison
+  const isBrandMatch = useCallback((productBrand: string, selectedBrand: string) => {
+    const productBrandLower = productBrand.toLowerCase();
+    const selectedBrandLower = selectedBrand.toLowerCase();
+    return productBrandLower === selectedBrandLower;
+  }, []);
+
+  // Tabs definition
+  const tabs: Tab[] = [
+    { id: TABS.SPECIFICATIONS, label: 'My Specifications', count: specifications.length },
+    { id: TABS.PRODUCTS, label: 'Available Products', count: products.length }
+  ];
+
+  // Apply filters to specifications
+  const filteredSpecifications = useMemo(() => {
+    return specifications.filter(spec => {
+      // Brand filter check
+      const matchesBrand = brandFilter === '' ||
+        (spec.product_brand && isBrandMatch(spec.product_brand.name, brandFilter));
+
+      // Search query check
+      let matchesSearch = searchQuery.trim() === '';
+      if (!matchesSearch && spec.product) {
+        // Use product data directly from the specification if available
+        matchesSearch = spec.product.title.toLowerCase().includes(searchQuery.toLowerCase());
+      } else if (!matchesSearch && spec.shopify_handle) {
+        // Get product title from cache if available, otherwise use handle
+        const product = getProduct(spec.shopify_handle);
+        const productTitle = product ? product.title : (spec.shopify_handle || '');
+        matchesSearch = productTitle.toLowerCase().includes(searchQuery.toLowerCase());
+      }
+
+      return matchesBrand && matchesSearch;
+    });
+  }, [specifications, searchQuery, brandFilter, isBrandMatch, getProduct]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      const matchesSearch = searchQuery.trim() === '' ||
+        product.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesBrand = brandFilter === '' ||
+        isBrandMatch(product.brand || product.vendor || '', brandFilter);
+
+      return matchesSearch && matchesBrand;
+    });
+  }, [products, searchQuery, brandFilter, isBrandMatch]);
+
+  // Handle tab change
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    // Reset filters when switching tabs
+    setBrandFilter('');
+    setSearchQuery('');
+  };
+
+  // Fetch specifications for the current user
+  // Fetch all brands from the database
+  const fetchBrands = useCallback(async () => {
+    setBrandsLoading(true);
+    setBrandsError(null);
+
+    try {
+      const response = await fetch('/api/brands');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch brands');
+      }
+
+      const data = await response.json();
+      setDbBrands(data);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+      setBrandsError(error instanceof Error ? error.message : 'Failed to load brands');
+    } finally {
+      setBrandsLoading(false);
+    }
+  }, []);
+
+  // Load specifications and related product data
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const loadData = async () => {
+      try {
+        // Start loading section
+        startLoading('specifications');
+
+        // Fetch specifications for the current user
+        // The specification cache will handle fetching products for specifications
+        await fetchSpecifications(user.id);
+        
+        if (!isMounted) return;
+        
+        // Initialize progressive product loading
+        // This will load an initial batch and start background loading
+        await preloadProducts(user.id);
+      } finally {
+        if (isMounted) {
+          stopLoading('specifications');
+        }
+      }
+    };
+
+    loadData();
+    
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [user, fetchSpecifications, preloadProducts, startLoading, stopLoading]);
+
+  // Fetch brands when component mounts
+  useEffect(() => {
+    fetchBrands();
+  }, [fetchBrands]);
+
+  // Update when brand filter changes
+  useEffect(() => {
+    // This hook can be used for any side effects when brand filter changes
+  }, [brandFilter]);
+
+  return (
+    <ProtectedRoute>
+      <AppLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* Tab navigation */}
+          <TabGroup
+            tabs={tabs}
+            activeTabId={activeTab}
+            onChange={handleTabChange}
+            className="mb-6"
+          />
+
+          {/* Filters and search */}
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1">
+              <Search
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search products..."
+                className="w-full"
+              />
+            </div>
+            <div className="w-full sm:w-64">
+              <select
+                id="brand-filter"
+                className="border border-gray-300 rounded-md w-full p-2 text-black"
+                value={brandFilter}
+                onChange={e => setBrandFilter(e.target.value)}
+                disabled={activeTab === TABS.PRODUCTS && brandsLoading}
+              >
+                <option value="">All Brands</option>
+                {brandsLoading && activeTab === TABS.PRODUCTS ? (
+                  <option value="" disabled>Loading brands...</option>
+                ) : brandsError && activeTab === TABS.PRODUCTS ? (
+                  <option value="" disabled>Error loading brands</option>
+                ) : (activeTab === TABS.SPECIFICATIONS ? specBrands : productBrands).map(brand => (
+                  <option key={brand.id} value={brand.id}>{brand.label}</option>
+                ))}
+              </select>
+              {brandsError && activeTab === TABS.PRODUCTS && (
+                <p className="text-red-500 text-xs mt-1">{brandsError}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Specifications tab content */}
+          {activeTab === TABS.SPECIFICATIONS && (
+            <div className="space-y-6">
+              {specLoading ? (
+                <LoadingSpinner text="Loading specifications..." />
+              ) : specError ? (
+                <Card>
+                  <div className="border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+                    <p className="font-medium">Error</p>
+                    <p className="text-sm">{specError}</p>
+                  </div>
+                </Card>
+              ) : filteredSpecifications.length === 0 ? (
+                <Card>
+                  <div className="text-center py-8">
+                    {specifications.length === 0 ? (
+                      <>
+                        <p className="text-divider mb-4">You haven&apos;t created any specifications yet.</p>
+                        <button
+                          onClick={() => handleTabChange(TABS.PRODUCTS)}
+                          className="px-4 py-2 bg-button-blue text-text rounded-md hover:bg-opacity-90 transition-colors"
+                        >
+                          Browse Available Products
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-divider">No specifications match your filters.</p>
+                    )}
+                  </div>
+                </Card>
+              ) : (
+                <div className={activeTab === 'specifications' ? 'block' : 'hidden'}>
+                  {filteredSpecifications.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredSpecifications.map((spec) => (
+                        <SpecificationCard
+                          key={spec.id}
+                          specification={spec}
+                          isProductLoading={spec.product ? false : productCache.isProductLoading(spec.shopify_handle)}
+                        />
+                      ))}
+                      {/* Removed failed products UI - errors will now be properly logged to console */}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-10">
+                      {specState.isLoading
+                        ? 'Loading specifications...'
+                        : 'No specifications found for the selected brand.'}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Products tab content */}
+          {activeTab === TABS.PRODUCTS && (
+            <div className="space-y-6">
+              {/* Only show loading spinner when first loading products and none are yet available */}
+              {productState.loadingHandles.size > 0 && productState.products.size === 0 ? (
+                <LoadingSpinner text="Loading products..." />
+              ) : productState.error ? (
+                <Card>
+                  <div className="border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+                    <p className="font-medium">Error</p>
+                    <p className="text-sm">{productState.error}</p>
+                  </div>
+                </Card>
+              ) : filteredProducts.length === 0 ? (
+                <Card>
+                  <div className="text-center py-8">
+                    {products.length === 0 ? (
+                      <p className="text-divider">There are no products available for specification at this time.</p>
+                    ) : (
+                      <p className="text-divider">No products match your filters.</p>
+                    )}
+                  </div>
+                </Card>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {filteredProducts.map(product => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                      />
+                    ))}
+                    {/* Show loading placeholders for products that are being fetched */}
+                    {Array.from(productCache.state.loadingHandles).map(handle => (
+                      <ProductCard
+                        key={`loading-${handle}`}
+                        product={undefined}
+                        isLoading={true}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </AppLayout>
+    </ProtectedRoute>
+  );
+}
+
+
+
+================================================
+FILE: src/components/auth/ProtectedRoute.tsx
+================================================
+'use client';
+
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/context';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles?: string[];
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  allowedRoles = [] 
+}) => {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/auth/login');
+    } else if (
+      !isLoading && 
+      user && 
+      allowedRoles.length > 0 && 
+      !allowedRoles.includes(user.role)
+    ) {
+      // If user doesn't have the required role
+      router.push('/unauthorized');
+    }
+  }, [user, isLoading, router, allowedRoles]);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-[300px] flex items-center justify-center">
+        <LoadingSpinner text="Checking authentication..." />
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return null; // Will redirect in the useEffect
+  }
+  
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return null; // Will redirect in the useEffect
+  }
+  
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
+
+
+
+================================================
+FILE: src/components/layout/AppLayout.tsx
+================================================
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/context';
+import { LoadingProvider } from '@/lib/loading/context';
+
+interface AppLayoutProps {
+  children: React.ReactNode;
+}
+
+export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/auth/login');
+  };
+
+  return (
+    <LoadingProvider>
+      <div className="min-h-screen flex flex-col bg-content-bg">
+        {/* Header */}
+        <header className="bg-card-bg border-b border-border shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16 items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <h1 className="text-xl font-bold text-text">Spec Builder</h1>
+              </div>
+              
+              {user && (
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-divider">
+                    {user.name || user.email}
+                  </span>
+                  <button 
+                    onClick={handleLogout}
+                    className="text-sm font-medium text-link hover:text-link hover:opacity-80"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="flex-grow">
+          {children}
+        </main>
+      </div>
+    </LoadingProvider>
+  );
+};
+
+export default AppLayout;
+
+
+
+================================================
+FILE: src/components/layout/ProtectedRoute.tsx
+================================================
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/context';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requireAdmin?: boolean;
+}
+
+export default function ProtectedRoute({ 
+  children, 
+  requireAdmin = false 
+}: ProtectedRouteProps) {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      // Redirect to login if not authenticated
+      router.push('/auth/login');
+    } else if (!isLoading && requireAdmin && user?.role !== 'admin') {
+      // Redirect to specifications if not admin but authenticated
+      router.push('/specifications');
+    }
+  }, [user, isLoading, router, requireAdmin]);
+
+  // Show nothing while loading or if not authenticated
+  if (isLoading || !user) {
+    return null;
+  }
+
+  // Show nothing if admin required but user is not admin
+  if (requireAdmin && user.role !== 'admin') {
+    return null;
+  }
+
+  // Render children if authorized
+  return <>{children}</>;
+}
+
+
+
+================================================
+FILE: src/components/products/ProductCard.tsx
+================================================
+import React from 'react';
+import Image from 'next/image';
+import Card from '@/components/ui/Card';
+import { ShopifyProduct } from '@/lib/data-management/types';
+
+interface ProductCardProps {
+  product?: ShopifyProduct;
+  onSelect?: () => void;
+  isLoading?: boolean;
+}
+
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onSelect,
+  isLoading = false,
+}) => {
+  // Render loading state
+  if (isLoading) {
+    return (
+      <Card 
+        className="flex flex-col h-full animate-pulse" 
+        padding="small"
+      >
+        <div className="relative aspect-square w-full mb-3 bg-gray-200 rounded"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+        <div className="h-5 bg-gray-200 rounded w-2/3 mb-4"></div>
+        <div className="mt-auto flex gap-2">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="ml-auto h-8 bg-gray-200 rounded w-1/3"></div>
+        </div>
+      </Card>
+    );
+  }
+  
+  // Make sure product exists
+  if (!product) {
+    return null;
+  }
+  
+  // Extract needed properties
+  const { title, vendor, brand, featuredImage, onlineStoreUrl } = product;
+  const displayBrand = brand || vendor || '';
+  const imageUrl = featuredImage?.url || '';
+  
+  // Render normal product card
+  return (
+    <Card 
+      className="flex flex-col h-full"
+      padding="small"
+      hoverEffect={true}
+    >
+      <div className="relative aspect-square w-full mb-3 bg-border bg-opacity-10 rounded">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-contain rounded"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-divider">
+            No image
+          </div>
+        )}
+      </div>
+      
+      <div className="mb-2">
+        <div className="heading-secondary">{displayBrand}</div>
+        <h3 className="heading-primary line-clamp-2">{title}</h3>
+      </div>
+      
+      <div className="mt-auto flex gap-2">
+        {onlineStoreUrl && (
+          <a 
+            href={onlineStoreUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-link hover:text-opacity-80"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View on website
+          </a>
+        )}
+        
+        {onSelect && (
+          <button
+            onClick={onSelect}
+            className="ml-auto px-3 py-1 tag-primary font-medium hover:bg-opacity-30"
+          >
+            Request Spec
+          </button>
+        )}
+      </div>
+    </Card>
+  );
+};
+
+export default ProductCard;
+
+
+
+================================================
+FILE: src/components/specifications/SpecificationCard.tsx
+================================================
+import React from 'react';
+import { format } from 'date-fns';
+import Card from '@/components/ui/Card';
+import StarRating from '@/components/ui/StarRating';
+import { SpecificationWithProduct, TastingNoteRelation } from '@/lib/data-management/types';
+
+interface SpecificationCardProps {
+  specification: SpecificationWithProduct;
+  onClick?: () => void;
+  isProductLoading?: boolean;
+}
+
+export const SpecificationCard: React.FC<SpecificationCardProps> = ({
+  specification,
+  onClick,
+  isProductLoading = false,
+}) => {
+  const formattedDate = format(new Date(specification.created_at), 'MMM d, yyyy');
+  const productName = specification.product ? specification.product.title : specification.shopify_handle;
+  const brand = specification.product_brand?.name || 'Unknown Brand';
+  const starRating = specification.star_rating || 0;
+  const tastingNotes = specification.tasting_notes || [];
+
+  // Handle click to view specification details
+  const handleClick = onClick || (() => {});
+  
+  return (
+    <Card 
+      className="flex flex-col h-full"
+      padding="medium"
+      hoverEffect={true}
+      onClick={handleClick}
+    >
+      <div className="text-meta mb-1">{formattedDate}</div>
+      
+      <div className="mb-2">
+        <div className="heading-secondary">{brand}</div>
+        <h3 className="heading-primary line-clamp-2">
+          {productName}
+          {isProductLoading && (
+            <span className="ml-2 inline-block w-4 h-4 border-2 border-t-transparent border-blue-500 rounded-full animate-spin"></span>
+          )}
+        </h3>
+      </div>
+      
+      <StarRating rating={starRating} size="small" className="mb-3" />
+      
+      {tastingNotes.length > 0 && (
+        <div className="mt-auto">
+          <div className="text-meta mb-1">Tasting Notes</div>
+          <div className="flex flex-wrap gap-1">
+            {tastingNotes.slice(0, 3).map((note, index) => (
+              <span 
+                key={index}
+                className="tag-primary"
+              >
+                {note.tasting_note.name}
+              </span>
+            ))}
+            {tastingNotes.length > 3 && (
+              <span className="tag-secondary">
+                +{tastingNotes.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+};
+
+export default SpecificationCard;
+
+
+
+================================================
+FILE: src/components/ui/Card.tsx
+================================================
+import React from 'react';
+
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  padding?: 'none' | 'small' | 'medium' | 'large';
+  border?: boolean;
+  hoverEffect?: boolean;
+  fullWidth?: boolean;
+}
+
+export function Card({ 
+  children, 
+  className = '', 
+  onClick, 
+  padding = 'medium',
+  border = false,
+  hoverEffect = false,
+  fullWidth = true
+}: CardProps) {
+  // Define padding classes based on the padding prop
+  const paddingClasses = {
+    none: 'p-0',
+    small: 'p-3',
+    medium: 'p-4 md:p-6',
+    large: 'p-6 md:p-8'
+  };
+  
+  // Build the class string
+  const classes = [
+    'card',
+    paddingClasses[padding],
+    hoverEffect ? 'transition-transform hover:scale-[1.01] hover:shadow-lg' : '',
+    fullWidth ? 'w-full' : '',
+    onClick ? 'cursor-pointer' : '',
+    className
+  ].join(' ').trim();
+  
+  return (
+    <div 
+      className={classes}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+    >
+      {children}
+    </div>
+  );
+}
+
+export default Card;
+
+
+
+================================================
+FILE: src/components/ui/Filter.tsx
+================================================
+import React from 'react';
+
+interface FilterOption {
+  id: string;
+  label: string;
+}
+
+interface FilterProps {
+  label?: string;
+  placeholder?: string;
+  options: FilterOption[];
+  selectedValue: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+export const Filter: React.FC<FilterProps> = ({
+  label,
+  placeholder = 'All',
+  options,
+  selectedValue,
+  onChange,
+  className = '',
+}) => {
+  return (
+    <div className={`flex flex-col ${className}`}>
+      {label && <label className="mb-1 text-sm font-medium text-divider">{label}</label>}
+      <select
+        value={selectedValue}
+        onChange={(e) => onChange(e.target.value)}
+        className="input p-2 bg-white border border-border rounded-md shadow-sm text-gray-800 text-sm focus:outline-none focus:ring-1 focus:ring-button-blue focus:border-button-blue"
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
+export default Filter;
+
+
+
+================================================
+FILE: src/components/ui/LoadingSpinner.tsx
+================================================
+import React from 'react';
+
+interface LoadingSpinnerProps {
+  size?: 'small' | 'medium' | 'large';
+  inline?: boolean;
+  text?: string;
+}
+
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  size = 'medium',
+  inline = false,
+  text = 'Loading...'
+}) => {
+  const sizeClasses = {
+    small: 'w-4 h-4 border-2',
+    medium: 'w-8 h-8 border-3',
+    large: 'w-12 h-12 border-4'
+  };
+
+  const containerClasses = inline 
+    ? 'inline-flex items-center' 
+    : 'flex flex-col items-center justify-center min-h-[100px]';
+
+  return (
+    <div className={containerClasses}>
+      <div 
+        className={`${sizeClasses[size]} rounded-full border-blue-500 border-t-transparent animate-spin`}
+        role="status"
+        aria-label="Loading"
+      />
+      {text && (
+        <p className="mt-2 text-gray-500 text-sm">{text}</p>
+      )}
+    </div>
+  );
+};
+
+export default LoadingSpinner;
+
+
+
+================================================
+FILE: src/components/ui/Search.tsx
+================================================
+import React, { useState, useEffect } from 'react';
+
+interface SearchProps {
+  placeholder?: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSearch?: () => void;
+  className?: string;
+  debounceMs?: number;
+}
+
+export const Search: React.FC<SearchProps> = ({
+  placeholder = 'Search...',
+  value,
+  onChange,
+  onSearch,
+  className = '',
+  debounceMs = 300,
+}) => {
+  const [localValue, setLocalValue] = useState(value);
+
+  // Update local value when prop value changes
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  // Debounce the onChange callback
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (localValue !== value) {
+        onChange(localValue);
+      }
+    }, debounceMs);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [localValue, value, onChange, debounceMs]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch?.();
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className={`relative ${className}`}>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg 
+            className="w-4 h-4 text-divider" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth="2" 
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+        <input
+          type="text"
+          value={localValue}
+          onChange={(e) => setLocalValue(e.target.value)}
+          className="input block w-full p-2 pl-10 text-sm border border-border rounded-md focus:ring-button-blue focus:border-button-blue bg-white"
+          placeholder={placeholder}
+        />
+        {localValue && (
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 flex items-center pr-3"
+            onClick={() => {
+              setLocalValue('');
+              onChange('');
+            }}
+          >
+            <svg 
+              className="w-4 h-4 text-divider hover:text-black" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth="2" 
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+    </form>
+  );
+};
+
+export default Search;
+
+
+
+================================================
+FILE: src/components/ui/StarRating.tsx
+================================================
+import React from 'react';
+
+interface StarRatingProps {
+  rating: number;
+  maxRating?: number;
+  size?: 'small' | 'medium' | 'large';
+  showEmpty?: boolean;
+  className?: string;
+}
+
+export const StarRating: React.FC<StarRatingProps> = ({
+  rating,
+  maxRating = 5,
+  size = 'medium',
+  showEmpty = true,
+  className = '',
+}) => {
+  // Size classes
+  const sizeClasses = {
+    small: 'text-sm',
+    medium: 'text-lg',
+    large: 'text-2xl',
+  };
+
+  // Create array of stars
+  const stars = [];
+  for (let i = 1; i <= maxRating; i++) {
+    const isFilled = i <= rating;
+    
+    stars.push(
+      <span 
+        key={i} 
+        className={`${isFilled ? 'text-yellow-400' : 'text-gray-300'} ${showEmpty || isFilled ? 'inline' : 'hidden'}`}
+        aria-hidden="true"
+      >
+        ★
+      </span>
+    );
+  }
+
+  return (
+    <div className={`flex items-center ${sizeClasses[size]} ${className}`} aria-label={`Rating: ${rating} out of ${maxRating} stars`}>
+      {stars}
+      <span className="sr-only">{rating} out of {maxRating} stars</span>
+    </div>
+  );
+};
+
+export default StarRating;
+
+
+
+================================================
+FILE: src/components/ui/TabGroup.tsx
+================================================
+import React from 'react';
+
+export interface Tab {
+  id: string;
+  label: string;
+  count?: number;
+}
+
+interface TabGroupProps {
+  tabs: Tab[];
+  activeTabId: string;
+  onChange: (tabId: string) => void;
+  className?: string;
+}
+
+export const TabGroup: React.FC<TabGroupProps> = ({
+  tabs,
+  activeTabId,
+  onChange,
+  className = '',
+}) => {
+  return (
+    <div className={`border-b border-border ${className}`}>
+      <nav className="flex -mb-px overflow-x-auto scrollbar-hide">
+        {tabs.map((tab) => {
+          const isActive = tab.id === activeTabId;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onChange(tab.id)}
+              className={`
+                py-4 px-1 mr-8 border-b-2 font-medium text-sm whitespace-nowrap
+                flex items-center
+                ${isActive
+                  ? 'border-button-blue text-button-blue'
+                  : 'border-transparent text-divider hover:text-text hover:border-border'
+                }
+              `}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {tab.label}
+              {tab.count !== undefined && (
+                <span 
+                  className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
+                    isActive ? 'bg-opacity-10 bg-button-blue text-button-blue' : 'bg-opacity-10 bg-border text-divider'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
+};
+
+export default TabGroup;
+
+
+
+================================================
+FILE: src/lib/auth/context.tsx
+================================================
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { AuthContextType, AuthState } from '@/lib/auth/types';
+
+// Default context value
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  isLoading: true,
+  error: null,
+  login: async () => {},
+  logout: async () => {},
+  isAdmin: () => false,
+  isReviewer: () => false,
+};
+
+// Create context
+export const AuthContext = createContext<AuthContextType>(defaultAuthContext);
+
+// Auth context provider
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isLoading: true,
+    error: null,
+  });
+
+  // On mount, check for stored user
+  useEffect(() => {
+    // For testing purposes, let's clear any existing login to force manual login
+    localStorage.removeItem('spec-builder-user');
+    
+    setAuthState({
+      user: null,
+      isLoading: false,
+      error: null,
+    });
+  }, []);
+
+  // Login function
+  const login = async (userId: string) => {
+    setAuthState({
+      ...authState,
+      isLoading: true,
+      error: null,
+    });
+
+    try {
+      // In a real app, this would be an API call
+      // For local development, we'll just fetch from the server component
+      const response = await fetch(`/api/auth/user/${userId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch user');
+      }
+      
+      const user = await response.json();
+      
+      // Store user in localStorage for persistence
+      localStorage.setItem('spec-builder-user', JSON.stringify(user));
+      
+      setAuthState({
+        user,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      setAuthState({
+        ...authState,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Unknown error during login',
+      });
+    }
+  };
+
+  // Logout function
+  const logout = async () => {
+    // Clear stored user
+    localStorage.removeItem('spec-builder-user');
+    
+    setAuthState({
+      user: null,
+      isLoading: false,
+      error: null,
+    });
+  };
+
+  // Helper functions
+  const isAdmin = () => authState.user?.role === 'admin';
+  const isReviewer = () => authState.user?.role === 'reviewer';
+
+  // Provide the auth context
+  return (
+    <AuthContext.Provider
+      value={{
+        ...authState,
+        login,
+        logout,
+        isAdmin,
+        isReviewer,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// Custom hook to use auth context
+export const useAuth = () => useContext(AuthContext);
+
+
+
+================================================
+FILE: src/lib/auth/types.ts
+================================================
+export type UserRole = 'admin' | 'reviewer';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  role: UserRole;
+  slack_userid?: string | null;
+  jotform_name?: string | null;
+}
+
+export interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface AuthContextType extends AuthState {
+  login: (userId: string) => Promise<void>;
+  logout: () => Promise<void>;
+  isAdmin: () => boolean;
+  isReviewer: () => boolean;
+}
+
+
+
+================================================
+FILE: src/lib/data-management/DataProvider.tsx
+================================================
+'use client';
+
+import React from 'react';
+import { ProductProvider } from '@/lib/data-management/productCache';
+import { SpecificationProvider } from '@/lib/data-management/specificationCache';
+import { LoadingProvider } from '@/lib/data-management/loadingContext';
+
+// Combined data provider that wraps all our context providers
+export function DataProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <LoadingProvider>
+      <ProductProvider>
+        <SpecificationProvider>
+          {children}
+        </SpecificationProvider>
+      </ProductProvider>
+    </LoadingProvider>
+  );
+}
+
+
+
+================================================
+FILE: src/lib/data-management/loadingContext.tsx
+================================================
+'use client';
+
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { LoadingState, LoadingContextType } from '@/lib/data-management/types';
+
+// Default context value
+const defaultLoadingState: LoadingState = {
+  isLoadingUsers: false,
+  isLoadingSpecifications: false,
+  isLoadingProducts: false,
+  isLoadingBrands: false,
+};
+
+const defaultLoadingContext: LoadingContextType = {
+  loadingState: defaultLoadingState,
+  setLoadingUsers: () => {},
+  setLoadingSpecifications: () => {},
+  setLoadingProducts: () => {},
+  setLoadingBrands: () => {},
+};
+
+// Create context
+export const LoadingContext = createContext<LoadingContextType>(defaultLoadingContext);
+
+// Loading context provider
+export function LoadingProvider({ children }: { children: React.ReactNode }) {
+  const [loadingState, setLoadingState] = useState<LoadingState>(defaultLoadingState);
+  
+  const setLoadingUsers = useCallback((isLoading: boolean) => {
+    setLoadingState(prev => ({ ...prev, isLoadingUsers: isLoading }));
+  }, []);
+  
+  const setLoadingSpecifications = useCallback((isLoading: boolean) => {
+    setLoadingState(prev => ({ ...prev, isLoadingSpecifications: isLoading }));
+  }, []);
+  
+  const setLoadingProducts = useCallback((isLoading: boolean) => {
+    setLoadingState(prev => ({ ...prev, isLoadingProducts: isLoading }));
+  }, []);
+  
+  const setLoadingBrands = useCallback((isLoading: boolean) => {
+    setLoadingState(prev => ({ ...prev, isLoadingBrands: isLoading }));
+  }, []);
+  
+  return (
+    <LoadingContext.Provider
+      value={{
+        loadingState,
+        setLoadingUsers,
+        setLoadingSpecifications,
+        setLoadingProducts,
+        setLoadingBrands,
+      }}
+    >
+      {children}
+    </LoadingContext.Provider>
+  );
+}
+
+// Custom hook to use loading context
+export const useLoadingState = () => useContext(LoadingContext);
+
+
+
+================================================
+FILE: src/lib/data-management/productCache.tsx
+================================================
+'use client';
+
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { 
+  ProductCacheState, 
+  ProductContextType, 
+  ShopifyProduct 
+} from '@/lib/data-management/types';
+
+// Default context value
+const defaultProductCacheState: ProductCacheState = {
+  products: new Map<string, ShopifyProduct>(),
+  loadingHandles: new Set<string>(),
+  isLoadingBatch: false,
+  error: null,
+  
+  // Progressive batch loading properties
+  currentCursor: undefined,
+  isBackgroundLoading: false,
+  isLoadingComplete: false,
+  batchesLoaded: 0,
+  totalProductsLoaded: 0,
+};
+
+const defaultProductContext: ProductContextType = {
+  state: defaultProductCacheState,
+  getProduct: () => undefined,
+  preloadProducts: async () => {},
+  fetchProductsByHandles: async () => {},
+  resetCache: () => {},
+  isProductLoading: () => false,
+  
+  // Core progressive batch loading functions
+  startBackgroundLoading: async () => {},
+  loadNextBatch: async () => false,
+};
+
+// Create context
+export const ProductContext = createContext<ProductContextType>(defaultProductContext);
+
+// Product context provider
+export function ProductProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<ProductCacheState>(defaultProductCacheState);
+
+  // Get a product by handle
+  const getProduct = useCallback((handle: string) => {
+    return state.products.get(handle);
+  }, [state.products]);
+
+  // Reset cache
+  const resetCache = useCallback(() => {
+    setState(defaultProductCacheState);
+  }, []);
+
+  // Abort controller for cleanup of in-flight requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Maximum retries for failed requests
+  const maxRetriesRef = useRef<number>(3);
+  const currentRetriesRef = useRef<number>(0);
+  
+  // Preload initial batch of products
+  const preloadProducts = useCallback(async (userId?: string) => {
+    // This function is now for INITIAL loading only, not for tab switching
+    // If we already have products loaded or are currently loading, don't do anything
+    if (state.isLoadingBatch || state.products.size > 0) return;
+    
+    // Reset retry counter
+    currentRetriesRef.current = 0;
+    
+    // Cancel any previous requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    
+    setState(prev => ({ ...prev, isLoadingBatch: true, error: null }));
+
+    try {
+      // Load the first batch of products using the batch API
+      const response = await fetch('/api/products/batch?limit=25', {
+        signal: abortControllerRef.current.signal
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch initial product batch: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const { products, nextCursor, hasNextPage } = data;
+      
+      if (!Array.isArray(products)) {
+        throw new Error('Invalid response format from products batch API');
+      }
+      
+      // Update cache with initial set of products and set background loading flag in one update
+      setState(prev => {
+        const updatedProducts = new Map(prev.products);
+        const updatedLoadingHandles = new Set(prev.loadingHandles);
+        
+        products.forEach(product => {
+          updatedProducts.set(product.handle, product);
+          updatedLoadingHandles.delete(product.handle);
+        });
+        
+        return {
+          ...prev,
+          products: updatedProducts,
+          loadingHandles: updatedLoadingHandles,
+          isLoadingBatch: false,
+          currentCursor: nextCursor,
+          isLoadingComplete: !hasNextPage,
+          // Set background loading flag directly in this update if more products exist
+          // Eliminates setTimeout and prevents extra re-render
+          isBackgroundLoading: hasNextPage,
+          batchesLoaded: 1,
+          totalProductsLoaded: products.length,
+        };
+      });
+    } catch (error) {
+      // Only log if not aborted
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        console.error('Error in preloadProducts:', error);
+        setState(prev => ({ 
+          ...prev, 
+          isLoadingBatch: false,
+          error: error instanceof Error ? error.message : 'An unknown error occurred'
+        }));
+      }
+    }
+  }, [state.isLoadingBatch, state.products.size]);
+
+  // Fetch specific products by handles (high priority)
+  const fetchProductsByHandles = useCallback(async (handles: string[]) => {
+    if (!handles?.length) return;
+    
+    // Cancel any previous requests for these handles
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    
+    // Reset retry counter
+    currentRetriesRef.current = 0;
+    
+    // Mark all handles as loading
+    setState(prev => {
+      const updatedLoadingHandles = new Set(prev.loadingHandles);
+      handles.forEach(handle => updatedLoadingHandles.add(handle));
+      return {
+        ...prev,
+        loadingHandles: updatedLoadingHandles,
+        error: null,
+      };
+    });
+    
+    try {
+      // Only fetch products that aren't already loaded
+      const unloadedHandles = handles.filter(handle => !state.products.has(handle));
+      
+      if (unloadedHandles.length > 0) {
+        const response = await fetch(`/api/products/byHandles?handles=${encodeURIComponent(JSON.stringify(unloadedHandles))}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products by handles: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!Array.isArray(data.products)) {
+          throw new Error('Invalid response format from products handles API');
+        }
+        
+        // Update cache with fetched products
+        setState(prev => {
+          const updatedProducts = new Map(prev.products);
+          const updatedLoadingHandles = new Set(prev.loadingHandles);
+          
+          // Add successfully loaded products to cache
+          data.products.forEach((product: ShopifyProduct) => {
+            updatedProducts.set(product.handle, product);
+            updatedLoadingHandles.delete(product.handle);
+          });
+          
+          // Remove loading state for any requested but not returned handles
+          unloadedHandles.forEach(handle => {
+            if (!data.products.some((p: ShopifyProduct) => p.handle === handle)) {
+              console.error(`Failed to load product: ${handle}`);
+              updatedLoadingHandles.delete(handle);
+            }
+          });
+          
+          return {
+            ...prev,
+            products: updatedProducts,
+            loadingHandles: updatedLoadingHandles,
+          };
+        });
+      } else {
+        // If all products are already loaded, just remove them from loading state
+        setState(prev => {
+          const updatedLoadingHandles = new Set(prev.loadingHandles);
+          handles.forEach(handle => updatedLoadingHandles.delete(handle));
+          
+          return {
+            ...prev,
+            loadingHandles: updatedLoadingHandles
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching products by handles:', error);
+      
+      // Log error and remove handles from loading
+      setState(prev => {
+        const updatedLoadingHandles = new Set(prev.loadingHandles);
+        
+        handles.forEach(handle => {
+          updatedLoadingHandles.delete(handle);
+        });
+        
+        return {
+          ...prev,
+          loadingHandles: updatedLoadingHandles,
+          error: error instanceof Error ? error.message : 'An unknown error occurred',
+        };
+      });
+    }
+  }, [state.products, state.loadingHandles]);
+
+  // Check if a product is currently loading
+  const isProductLoading = useCallback((handle: string) => {
+    return state.loadingHandles.has(handle);
+  }, [state.loadingHandles]);
+
+  // Load a batch of products with cursor-based pagination
+  const loadNextBatch = useCallback(async (batchSize: number = 25): Promise<boolean> => {
+    // Don't load if we're either already loading or have completed loading
+    if (state.isLoadingComplete || state.isLoadingBatch) return false;
+    
+    // Set loading flag
+    setState(prev => ({ ...prev, isLoadingBatch: true }));
+    
+    // If we've exceeded max retries, stop trying
+    if (currentRetriesRef.current >= maxRetriesRef.current) {
+      console.warn(`Maximum retries (${maxRetriesRef.current}) reached for batch loading. Stopping background loading.`);
+      setState(prev => ({
+        ...prev,
+        isLoadingBatch: false,
+        error: `Maximum retries (${maxRetriesRef.current}) reached. Please try again later.`,
+        isBackgroundLoading: false
+      }));
+      return false;
+    }
+    
+    // Cancel any previous requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    
+    try {
+      // Construct URL with cursor if available
+      const url = `/api/products/batch?limit=${batchSize}${state.currentCursor ? `&cursor=${encodeURIComponent(state.currentCursor)}` : ''}`;
+      
+      // Fetch next batch of products with abort controller
+      const response = await fetch(url, {
+        signal: abortControllerRef.current.signal
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch product batch: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const { products, nextCursor, hasNextPage } = data;
+      
+      if (!Array.isArray(products)) {
+        throw new Error('Invalid response format from products batch API');
+      }
+      
+      // Reset retry counter on success
+      currentRetriesRef.current = 0;
+      
+      // Log success information
+      console.log(`Successfully loaded batch: ${products.length} products, hasNextPage: ${hasNextPage}, total now: ${state.totalProductsLoaded + products.length}`);
+      if (hasNextPage) {
+        console.log(`Next cursor: ${nextCursor}`);
+      }
+      
+      // Update cache with fetched products
+      setState(prev => {
+        const updatedProducts = new Map(prev.products);
+        const updatedLoadingHandles = new Set(prev.loadingHandles);
+        
+        products.forEach(product => {
+          updatedProducts.set(product.handle, product);
+          updatedLoadingHandles.delete(product.handle);
+        });
+        
+        return {
+          ...prev,
+          products: updatedProducts,
+          loadingHandles: updatedLoadingHandles,
+          isLoadingBatch: false,
+          currentCursor: nextCursor,
+          isLoadingComplete: !hasNextPage,
+          batchesLoaded: prev.batchesLoaded + 1,
+          totalProductsLoaded: prev.totalProductsLoaded + products.length,
+          error: null, // Clear any previous errors on success
+        };
+      });
+      
+      return hasNextPage; // Return whether there are more batches to load
+    } catch (error) {
+      // Only handle non-abort errors
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        console.error('Error loading product batch:', error);
+        
+        // Increment retry counter
+        currentRetriesRef.current += 1;
+        
+        // Update state to reflect error but DO NOT set isLoadingComplete
+        // so that we can continue trying to load products
+        setState(prev => ({
+          ...prev,
+          isLoadingBatch: false,
+          error: error instanceof Error ? error.message : 'An unknown error occurred loading products',
+        }));
+      }
+      
+      // Return true to indicate we should try again, but only if we haven't reached max retries
+      return currentRetriesRef.current < maxRetriesRef.current;
+    }
+  }, [state.currentCursor, state.isLoadingComplete, state.isLoadingBatch, state.totalProductsLoaded]);
+
+  // Background loading process with automatic retry
+  const startBackgroundLoading = useCallback(async () => {
+    // If background loading is already active or loading is complete, don't do anything
+    if (state.isBackgroundLoading || state.isLoadingComplete) {
+      return;
+    }
+    
+    console.log('Starting background product loading process');
+    
+    // Reset retry counter
+    currentRetriesRef.current = 0;
+    
+    // Set background loading flag
+    setState(prev => ({ ...prev, isBackgroundLoading: true }));
+    
+    // Create a local recursive function that uses setState callback to get latest state
+    const loadBatchesRecursively = async () => {
+      // Use a closure variable to track the latest background loading state
+      let isCurrentlyLoading = true;
+      let currentTotalLoaded = 0;
+      
+      // Get the latest state values before making the request
+      setState(prev => {
+        isCurrentlyLoading = prev.isBackgroundLoading;
+        currentTotalLoaded = prev.totalProductsLoaded;
+        return prev; // No state update, just reading
+      });
+      
+      // Only proceed if we're still in background loading mode
+      if (!isCurrentlyLoading) {
+        return;
+      }
+      
+      // Load the next batch of products
+      const hasMore = await loadNextBatch();
+      
+      // Get updated loading state again
+      setState(prev => {
+        isCurrentlyLoading = prev.isBackgroundLoading;
+        return prev; // No state update, just reading
+      });
+      
+      // If there are more batches, continue with a consistent delay
+      if (hasMore && isCurrentlyLoading) {
+        // Use a consistent delay to ensure we don't hammer the API
+        setTimeout(loadBatchesRecursively, 1000);
+      } else {
+        // No more batches or background loading was stopped
+        console.log(`Background loading complete. Total products loaded: ${currentTotalLoaded}`);
+        setState(prev => ({ 
+          ...prev, 
+          isBackgroundLoading: false,
+          isLoadingComplete: !hasMore // Only set as complete if there are no more products
+        }));
+      }
+    };
+    
+    // Start the loading process
+    loadBatchesRecursively();
+  }, [loadNextBatch]);
+
+  // Create the context value with memoized methods
+  const value = {
+    state,
+    
+    // Core product management methods
+    getProduct,
+    preloadProducts,
+    fetchProductsByHandles,
+    resetCache,
+    isProductLoading,
+    
+    // Core progressive batch loading functions
+    startBackgroundLoading,
+    loadNextBatch,
+  };
+
+  // Clean up any in-flight requests when component unmounts
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  return (
+    <ProductContext.Provider value={value}>
+      {children}
+    </ProductContext.Provider>
+  );
+}
+
+// Custom hook to use product cache context
+export const useProductCache = () => useContext(ProductContext);
+
+
+
+================================================
+FILE: src/lib/data-management/specificationCache.tsx
+================================================
+'use client';
+
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { 
+  SpecificationCacheState, 
+  SpecificationContextType,
+  Specification,
+  SpecificationWithProduct
+} from '@/lib/data-management/types';
+import { useProductCache } from '@/lib/data-management/productCache';
+
+// Default context value
+const defaultSpecificationCacheState: SpecificationCacheState = {
+  specifications: [],
+  isLoading: false,
+  error: null,
+};
+
+const defaultSpecificationContext: SpecificationContextType = {
+  state: defaultSpecificationCacheState,
+  fetchSpecifications: async () => { return; },
+  getSpecificationsSortedByCompleteness: () => [],
+  resetCache: () => {},
+};
+
+// Create context
+export const SpecificationContext = createContext<SpecificationContextType>(defaultSpecificationContext);
+
+// Specification context provider
+export function SpecificationProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<SpecificationCacheState>(defaultSpecificationCacheState);
+  const { getProduct, fetchProductsByHandles } = useProductCache();
+  
+  // Reset cache
+  const resetCache = useCallback(() => {
+    setState(defaultSpecificationCacheState);
+  }, []);
+
+  // Fetch specifications for a user
+  const fetchSpecifications = useCallback(async (userId: string) => {
+    // Cancel any previous requests
+    const abortController = new AbortController();
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    
+    try {
+      const response = await fetch(`/api/specifications?userId=${userId}`, {
+        signal: abortController.signal
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch specifications: ${response.status}`);
+      }
+      
+      const specifications: Specification[] = await response.json();
+      
+      // Transform specifications to include product data if available
+      const specificationsWithProduct: SpecificationWithProduct[] = specifications.map(spec => {
+        const product = getProduct(spec.shopify_handle);
+        
+        return {
+          ...spec,
+          product,
+          isProductLoading: !product && spec.shopify_handle ? true : false, // Mark as loading only if handle exists
+        };
+      });
+      
+      setState({
+        specifications: specificationsWithProduct,
+        isLoading: false,
+        error: null,
+      });
+      
+      // Extract handles that need to be fetched with priority
+      const visibleSpecHandles = specificationsWithProduct
+        .slice(0, 8) // Assume first 8 specs are visible in viewport
+        .filter(spec => !spec.product && spec.shopify_handle)
+        .map(spec => spec.shopify_handle);
+        
+      // Fetch visible products with priority
+      if (visibleSpecHandles.length > 0) {
+        fetchProductsByHandles(visibleSpecHandles);
+      }
+      
+      // Get all handles that need to be fetched
+      const allHandlesToFetch = specificationsWithProduct
+        .filter(spec => !spec.product && spec.shopify_handle)
+        .map(spec => spec.shopify_handle);
+        
+      if (allHandlesToFetch.length > 0 && allHandlesToFetch.length !== visibleSpecHandles.length) {
+        // Fetch the remaining non-visible handles
+        const remainingHandles = allHandlesToFetch.filter(
+          handle => !visibleSpecHandles.includes(handle)
+        );
+        fetchProductsByHandles(remainingHandles);
+      }
+    } catch (error: unknown) {
+      // Only update error state if not aborted
+      if (error instanceof Error && error.name !== 'AbortError') {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: error.message,
+        }));
+      } else if (error !== null && error !== undefined) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'An unknown error occurred',
+        }));
+      }
+    }
+    
+    // We don't need to return a cleanup function from this callback
+    abortController.abort();
+    return;
+  }, [getProduct, fetchProductsByHandles]);
+
+  // Update specifications when product cache changes
+  const { state: productState } = useProductCache();
+  useEffect(() => {
+    if (state.specifications.length === 0) return;
+    
+    // Compare before updating - track if any changes were made
+    let hasChanges = false;
+    
+    // Update specifications with newly loaded products
+    setState(prev => {
+      const updatedSpecs = prev.specifications.map(spec => {
+        // If we already have a product or it's not loading, return as is
+        if (spec.product || !spec.isProductLoading) return spec;
+        
+        // Check if the product is now available in the cache
+        const product = getProduct(spec.shopify_handle);
+        if (product) {
+          hasChanges = true;
+          return {
+            ...spec,
+            product,
+            isProductLoading: false,
+          };
+        }
+        
+        // Check if loading status changed
+        const isLoading = productState.loadingHandles.has(spec.shopify_handle);
+        if (spec.isProductLoading !== isLoading) {
+          hasChanges = true;
+          return {
+            ...spec,
+            isProductLoading: isLoading,
+          };
+        }
+        
+        return spec;
+      });
+      
+      // Only update state if something actually changed
+      return hasChanges ? {
+        ...prev,
+        specifications: updatedSpecs,
+      } : prev;
+    });
+  }, [productState.products, productState.loadingHandles, getProduct]);
+
+  // Sort specifications by completeness (products loaded first) with proper memoization
+  const sortedSpecifications = useMemo(() => {
+    return [...state.specifications].sort((a, b) => {
+      // First sort by product availability
+      if (a.product && !b.product) return -1;
+      if (!a.product && b.product) return 1;
+      
+      // Then by creation date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [state.specifications]);
+  
+  // Return the memoized sorted specifications
+  const getSpecificationsSortedByCompleteness = useCallback(() => {
+    return sortedSpecifications;
+  }, [sortedSpecifications]);
+
+  return (
+    <SpecificationContext.Provider
+      value={{
+        state,
+        fetchSpecifications,
+        getSpecificationsSortedByCompleteness,
+        resetCache,
+      }}
+    >
+      {children}
+    </SpecificationContext.Provider>
+  );
+}
+
+// Custom hook to use specification cache context
+export const useSpecificationCache = () => useContext(SpecificationContext);
+
+
+
+================================================
+FILE: src/lib/data-management/types.ts
+================================================
+// Data management layer type definitions
+import { User } from '@/lib/auth/types';
+
+// Product Types
+export interface ShopifyProductImage {
+  url: string;
+}
+
+export interface ShopifyProduct {
+  id: string;
+  handle: string;
+  title: string;
+  vendor: string;
+  brand?: string;
+  featuredImage?: ShopifyProductImage;
+  onlineStoreUrl?: string;
+}
+
+export interface ProductCacheState {
+  products: Map<string, ShopifyProduct>;
+  loadingHandles: Set<string>;
+  isLoadingBatch: boolean;
+  error: string | null;
+  
+  // Progressive batch loading properties
+  currentCursor?: string;          // Current cursor for batch pagination
+  isBackgroundLoading: boolean;    // Whether background loading is active
+  isLoadingComplete: boolean;      // Whether all products are loaded
+  batchesLoaded: number;           // Number of batches successfully loaded
+  totalProductsLoaded: number;     // Total number of products loaded
+}
+
+// Specification Types
+export interface SpecificationRelation {
+  id: string;
+  name: string;
+}
+
+export interface TastingNoteRelation {
+  tasting_note: SpecificationRelation;
+}
+
+export interface TobaccoTypeRelation {
+  tobacco_type: SpecificationRelation;
+}
+
+export interface CureRelation {
+  cure: SpecificationRelation;
+}
+
+export interface Specification {
+  id: string;
+  shopify_handle: string;
+  review: string | null;
+  star_rating: number | null;
+  created_at: string;
+  updated_at: string;
+  product_type: SpecificationRelation | null;
+  product_brand: SpecificationRelation | null;
+  tasting_notes: TastingNoteRelation[];
+  grind: SpecificationRelation | null;
+  moisture_level: SpecificationRelation | null;
+  nicotine_level: SpecificationRelation | null;
+  experience_level: SpecificationRelation | null;
+  tobacco_types: TobaccoTypeRelation[];
+  cures: CureRelation[];
+}
+
+export interface SpecificationWithProduct extends Specification {
+  product?: ShopifyProduct;
+  isProductLoading?: boolean;
+}
+
+export interface SpecificationCacheState {
+  specifications: SpecificationWithProduct[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Loading State
+export interface LoadingState {
+  isLoadingUsers: boolean;
+  isLoadingSpecifications: boolean;
+  isLoadingProducts: boolean;
+  isLoadingBrands: boolean;
+}
+
+// Context Types
+export interface ProductContextType {
+  state: ProductCacheState;
+  getProduct: (handle: string) => ShopifyProduct | undefined;
+  preloadProducts: (userId?: string) => Promise<void>;
+  fetchProductsByHandles: (handles: string[]) => Promise<void>;
+  resetCache: () => void;
+  isProductLoading: (handle: string) => boolean;
+  
+  // Core progressive batch loading functions
+  startBackgroundLoading: () => Promise<void>;
+  loadNextBatch: (batchSize?: number) => Promise<boolean>;
+}
+
+export interface SpecificationContextType {
+  state: SpecificationCacheState;
+  fetchSpecifications: (userId: string) => Promise<void>;
+  getSpecificationsSortedByCompleteness: () => SpecificationWithProduct[];
+  resetCache: () => void;
+}
+
+export interface LoadingContextType {
+  loadingState: LoadingState;
+  setLoadingUsers: (isLoading: boolean) => void;
+  setLoadingSpecifications: (isLoading: boolean) => void;
+  setLoadingProducts: (isLoading: boolean) => void;
+  setLoadingBrands: (isLoading: boolean) => void;
+}
+
+
+
+================================================
+FILE: src/lib/loading/context.tsx
+================================================
+'use client';
+
+import React, { createContext, useContext, useState, useCallback } from 'react';
+
+interface LoadingState {
+  isLoading: boolean;
+  message: string;
+  section?: string;
+}
+
+interface LoadingContextType {
+  loadingState: LoadingState;
+  startLoading: (message?: string, section?: string) => void;
+  stopLoading: (section?: string) => void;
+  isLoadingSection: (section: string) => boolean;
+}
+
+const defaultLoadingContext: LoadingContextType = {
+  loadingState: {
+    isLoading: false,
+    message: '',
+  },
+  startLoading: () => {},
+  stopLoading: () => {},
+  isLoadingSection: () => false,
+};
+
+export const LoadingContext = createContext<LoadingContextType>(defaultLoadingContext);
+
+export function LoadingProvider({ children }: { children: React.ReactNode }) {
+  const [loadingState, setLoadingState] = useState<LoadingState>({
+    isLoading: false,
+    message: '',
+  });
+
+  const startLoading = useCallback((message = 'Loading...', section?: string) => {
+    setLoadingState({
+      isLoading: true,
+      message,
+      section,
+    });
+  }, []);
+
+  const stopLoading = useCallback((section?: string) => {
+    setLoadingState((prevState) => {
+      // If a section is specified, only stop loading if it matches the current section
+      if (section && prevState.section !== section) {
+        return prevState;
+      }
+      return {
+        isLoading: false,
+        message: '',
+        section: undefined,
+      };
+    });
+  }, []);
+
+  const isLoadingSection = useCallback((section: string) => {
+    return loadingState.isLoading && loadingState.section === section;
+  }, [loadingState]);
+
+  return (
+    <LoadingContext.Provider
+      value={{
+        loadingState,
+        startLoading,
+        stopLoading,
+        isLoadingSection,
+      }}
+    >
+      {children}
+    </LoadingContext.Provider>
+  );
+}
+
+export const useLoading = () => useContext(LoadingContext);
+
+
+
+================================================
+FILE: src/lib/prisma/client.ts
+================================================
+import { PrismaClient } from '@prisma/client'
+
+// PrismaClient is attached to the `global` object in development to prevent
+// exhausting your database connection limit.
+// Learn more: https://pris.ly/d/help/next-js-best-practices
+
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient({
+    log: ['error', 'warn'], // Removed 'query' to disable verbose SQL logging
+  })
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+export default prisma
+
+
+
+================================================
+FILE: src/lib/shopify/api.ts
+================================================
+import { gql, request } from 'graphql-request';
+
+// Environment variables
+const SHOPIFY_STORE_URL = process.env.SHOPIFY_STORE_URL;
+const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
+const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION || '2025-01';
+
+// GraphQL endpoint - include /admin/ in the path for authenticated API access
+const endpoint = `${SHOPIFY_STORE_URL}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
+
+// Headers
+const headers = {
+  'X-Shopify-Access-Token': SHOPIFY_ACCESS_TOKEN || '',
+  'Content-Type': 'application/json',
+};
+
+// Type definition for product batch response
+interface ProductBatchResponse {
+  products: any[];
+  nextCursor?: string;
+  hasNextPage: boolean;
+}
+
+/**
+ * Fetch product titles for multiple handles in one request
+ * @param handles Array of product handles to fetch
+ * @returns Object mapping handles to titles
+ */
+export async function fetchProductTitles(handles: string[]): Promise<Record<string, string>> {
+  if (!handles.length) return {};
+
+  // Create filter query for handles
+  // We'll use 'query' parameter with multiple OR conditions
+  const queryString = handles.map(h => `handle:${h}`).join(' OR ');
+
+  const query = gql`
+    query GetProductTitles($queryString: String!) {
+      products(first: 250, query: $queryString) {
+        edges {
+          node {
+            handle
+            title
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const data: any = await request(
+      endpoint,
+      query,
+      { queryString },
+      headers
+    );
+
+    // Transform the response to a handle -> title map
+    const titleMap: Record<string, string> = {};
+    if (data.products?.edges) {
+      data.products.edges.forEach((edge: any) => {
+        const node = edge.node;
+        if (node && node.handle) {
+          titleMap[node.handle] = node.title;
+        }
+      });
+    }
+
+    return titleMap;
+  } catch (error) {
+    console.error('Error fetching product titles from Shopify:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch products by specific handles
+ * @param handles Array of product handles to fetch
+ * @returns Array of product objects
+ */
+export async function fetchProductsByHandles(handles: string[]) {
+  if (!handles.length) return [];
+  
+  // Create filter query for handles
+  const queryString = handles.map(h => `handle:${h}`).join(' OR ');
+  
+  // GraphQL query to fetch products with metafields using admin API
+  const query = gql`
+    query GetProductsByHandles($queryString: String!) {
+      products(first: 250, query: $queryString) {
+        edges {
+          node {
+            id
+            handle
+            title
+            vendor
+            onlineStoreUrl
+            featuredImage {
+              url
+            }
+            metafield(namespace: "custom", key: "brands") {
+              value
+              type
+            }
+            publishedAt
+            updatedAt
+          }
+        }
+      }
+    }
+  `;
+  
+  try {
+    const data: any = await request(
+      endpoint,
+      query,
+      { queryString },
+      headers
+    );
+    
+    // Process the response similar to fetchAvailableProducts
+    const products = data.products?.edges
+      .map((edge: any) => {
+        const node = edge.node;
+        
+        // Get brand from custom.brands metafield - no fallback to vendor
+        if (!node.metafield || !node.metafield.value) {
+          console.warn(`Product '${node.title}' is missing required custom.brands metafield`);
+          return null;
+        }
+        
+        // Parse the brand value based on metafield type
+        let brand;
+        try {
+          // Handle list.single_line_text_field type specifically
+          if (node.metafield.type === 'list.single_line_text_field') {
+            // This will be a JSON array of strings
+            const parsed = JSON.parse(node.metafield.value);
+            
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              // Use the first value in the list
+              brand = parsed[0];
+            } else {
+              console.warn(`Product '${node.title}' has empty brands list`);
+              return null;
+            }
+          }
+          // If it's any other JSON type, try to parse it
+          else if (node.metafield.type === 'json_string' || 
+              node.metafield.value.startsWith('[') || 
+              node.metafield.value.startsWith('{')) {
+            
+            const parsed = JSON.parse(node.metafield.value);
+            
+            // Handle array case (take first value)
+            if (Array.isArray(parsed)) {
+              brand = parsed[0] || '';
+            } 
+            // Handle object case
+            else if (typeof parsed === 'object' && parsed !== null) {
+              // If it has a name or value property, use that
+              brand = parsed.name || parsed.value || parsed.brand || '';
+            }
+            // Handle primitive value
+            else {
+              brand = String(parsed);
+            }
+          } else {
+            // Use as simple string
+            brand = node.metafield.value;
+          }
+        } catch (err) {
+          console.warn(`Product '${node.title}' has malformed custom.brands metafield (parsing error)`);
+          return null;
+        }
+        
+        if (!brand) {
+          console.warn(`Product '${node.title}' has invalid custom.brands metafield format`);
+          return null;
+        }
+
+        return {
+          id: node.id.replace('gid://shopify/Product/', ''),  // Remove the GraphQL ID prefix
+          handle: node.handle,
+          title: node.title,
+          vendor: node.vendor,
+          brand: brand,  // Use the brand we determined above
+          featuredImage: node.featuredImage ? { url: node.featuredImage.url } : null,
+          onlineStoreUrl: node.onlineStoreUrl,
+        };
+      })
+      .filter(Boolean);
+
+    return products;
+  } catch (error) {
+    console.error('Error fetching products by handles from Shopify:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch a batch of products with cursor-based pagination
+ * @param cursor Optional cursor for pagination
+ * @param limit Number of products to fetch per batch
+ * @returns Object with products array, next cursor, and hasNextPage flag
+ */
+export async function fetchProductsBatch(cursor?: string, limit: number = 25): Promise<ProductBatchResponse> {
+  // GraphQL query to fetch products with cursor-based pagination
+  const query = gql`
+    query GetProductsBatch($limit: Int!, $cursor: String) {
+      products(first: $limit, after: $cursor) {
+        edges {
+          node {
+            id
+            handle
+            title
+            vendor
+            onlineStoreUrl
+            featuredImage {
+              url
+            }
+            metafield(namespace: "custom", key: "brands") {
+              value
+              type
+            }
+            publishedAt
+            updatedAt
+          }
+          cursor
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  `;
+  
+  try {
+    const data: any = await request(
+      endpoint,
+      query,
+      { limit, cursor },
+      headers
+    );
+    
+    // Extract and process products
+    const products = data.products?.edges
+      .map((edge: any) => {
+        const node = edge.node;
+        
+        // Get brand from custom.brands metafield - no fallback to vendor
+        if (!node.metafield || !node.metafield.value) {
+          console.warn(`Product '${node.title}' is missing required custom.brands metafield`);
+          return null;
+        }
+        
+        // Parse the brand value based on metafield type
+        let brand;
+        try {
+          // Handle list.single_line_text_field type specifically
+          if (node.metafield.type === 'list.single_line_text_field') {
+            // This will be a JSON array of strings
+            const parsed = JSON.parse(node.metafield.value);
+            
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              // Use the first value in the list
+              brand = parsed[0];
+            } else {
+              console.warn(`Product '${node.title}' has empty brands list`);
+              return null;
+            }
+          }
+          // If it's any other JSON type, try to parse it
+          else if (node.metafield.type === 'json_string' || 
+              node.metafield.value.startsWith('[') || 
+              node.metafield.value.startsWith('{')) {
+            
+            const parsed = JSON.parse(node.metafield.value);
+            
+            // Handle array case (take first value)
+            if (Array.isArray(parsed)) {
+              brand = parsed[0] || '';
+            } 
+            // Handle object case
+            else if (typeof parsed === 'object' && parsed !== null) {
+              // If it has a name or value property, use that
+              brand = parsed.name || parsed.value || parsed.brand || '';
+            }
+            // Handle primitive value
+            else {
+              brand = String(parsed);
+            }
+          } else {
+            // Use as simple string
+            brand = node.metafield.value;
+          }
+        } catch (err) {
+          console.warn(`Product '${node.title}' has malformed custom.brands metafield (parsing error)`);
+          return null;
+        }
+        
+        if (!brand) {
+          console.warn(`Product '${node.title}' has invalid custom.brands metafield format`);
+          return null;
+        }
+
+        return {
+          id: node.id.replace('gid://shopify/Product/', ''),  // Remove the GraphQL ID prefix
+          handle: node.handle,
+          title: node.title,
+          vendor: node.vendor,
+          brand: brand,  // Use the brand we determined above
+          featuredImage: node.featuredImage ? { url: node.featuredImage.url } : null,
+          onlineStoreUrl: node.onlineStoreUrl,
+        };
+      })
+      .filter(Boolean);
+    
+    // Extract pagination info
+    const pageInfo = data.products?.pageInfo || {};
+    const nextCursor = pageInfo.hasNextPage ? pageInfo.endCursor : undefined;
+    
+    return {
+      products,
+      nextCursor,
+      hasNextPage: !!pageInfo.hasNextPage
+    };
+  } catch (error) {
+    console.error('Error fetching product batch from Shopify:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch available products from Shopify that don't have specifications yet
+ * @param excludeHandles Array of product handles to exclude
+ * @param limit Number of products to fetch
+ * @returns Array of product objects
+ */
+export async function fetchAvailableProducts(excludeHandles: string[] = [], limit: number = 50) {
+  // GraphQL query to fetch products with metafields using admin API
+  const query = gql`
+    query GetProducts($first: Int!) {
+      products(first: $first, query: "status:active") {
+        edges {
+          node {
+            id
+            handle
+            title
+            vendor
+            onlineStoreUrl
+            featuredImage {
+              url
+            }
+            metafield(namespace: "custom", key: "brands") {
+              value
+              type
+            }
+            publishedAt
+            updatedAt
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const data: any = await request(
+      endpoint,
+      query,
+      {
+        first: limit,
+      },
+      headers
+    );
+    
+    // Process the response
+
+    // Extract products and filter out ones that are in the excludedHandles list
+    const products = data.products?.edges
+      .map((edge: any) => {
+        const node = edge.node;
+        if (excludeHandles.includes(node.handle)) {
+          return null;
+        }
+
+        // Get brand from custom.brands metafield - no fallback to vendor
+        if (!node.metafield || !node.metafield.value) {
+          throw new Error(`Product '${node.title}' is missing required custom.brands metafield`);
+        }
+        
+        // Parse the brand value based on metafield type
+        let brand;
+        try {
+          // Handle list.single_line_text_field type specifically
+          if (node.metafield.type === 'list.single_line_text_field') {
+            // This will be a JSON array of strings
+            const parsed = JSON.parse(node.metafield.value);
+            
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              // Use the first value in the list
+              brand = parsed[0];
+            } else {
+              throw new Error(`Product '${node.title}' has empty brands list`);
+            }
+          }
+          // If it's any other JSON type, try to parse it
+          else if (node.metafield.type === 'json_string' || 
+              node.metafield.value.startsWith('[') || 
+              node.metafield.value.startsWith('{')) {
+            
+            const parsed = JSON.parse(node.metafield.value);
+            
+            // Handle array case (take first value)
+            if (Array.isArray(parsed)) {
+              brand = parsed[0] || '';
+            } 
+            // Handle object case
+            else if (typeof parsed === 'object' && parsed !== null) {
+              // If it has a name or value property, use that
+              brand = parsed.name || parsed.value || parsed.brand || '';
+            }
+            // Handle primitive value
+            else {
+              brand = String(parsed);
+            }
+          } else {
+            // Use as simple string
+            brand = node.metafield.value;
+          }
+        } catch (err) {
+          // Don't use fallbacks - report the parsing error clearly
+          throw new Error(`Product '${node.title}' has malformed custom.brands metafield (parsing error)`);
+        }
+        
+        if (!brand) {
+          throw new Error(`Product '${node.title}' has invalid custom.brands metafield format`);
+        }
+
+        return {
+          id: node.id.replace('gid://shopify/Product/', ''),  // Remove the GraphQL ID prefix
+          handle: node.handle,
+          title: node.title,
+          vendor: node.vendor,
+          brand: brand,  // Use the brand we determined above
+          image_url: node.featuredImage?.url || null,
+          product_url: node.onlineStoreUrl,
+          published_at: node.publishedAt,
+          updated_at: node.updatedAt,
+        };
+      })
+      .filter(Boolean);
+
+    return products;
+  } catch (error) {
+    console.error('Error fetching products from Shopify:', error);
+    throw error;
+  }
+}
+
+
+
+================================================
+FILE: src/styles/globals.css
+================================================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 30, 33, 40;
+  --background-end-rgb: 20, 22, 28;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  min-height: 100vh;
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded font-medium focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-colors;
+  }
+  
+  .btn-blue {
+    @apply bg-button-blue text-text hover:bg-opacity-90 focus:ring-button-blue;
+  }
+  
+  .btn-green {
+    @apply bg-button-green text-text hover:bg-opacity-90 focus:ring-button-green;
+  }
+
+  .input {
+    @apply bg-white border border-border rounded p-2 text-gray-900 focus:ring-button-blue focus:border-button-blue;
+  }
+
+  .card {
+    @apply bg-[#161a22] border border-border rounded-lg p-4 shadow-lg overflow-hidden;
+  }
+  
+  /* Tag components */
+  .tag {
+    @apply inline-block px-2 py-1 rounded-full text-xs;
+  }
+  
+  .tag-primary {
+    @apply tag bg-button-blue bg-opacity-20 text-text;
+  }
+  
+  .tag-secondary {
+    @apply tag bg-border bg-opacity-30 text-text;
+  }
+  
+  /* Typography components */
+  .heading-primary {
+    @apply text-lg font-semibold text-text;
+  }
+  
+  .heading-secondary {
+    @apply text-sm font-medium text-divider;
+  }
+  
+  .text-meta {
+    @apply text-xs text-divider;
+  }
+}
+
+
+
+================================================
+FILE: .windsurf/rules/prevent-react-effect-loops.md
+================================================
+---
+trigger: model_decision
+description: Enforce safeguards against infinite loops in React effect hooks
+---
+
+## React useEffect Dependency Management
+
+1. Functions that update state must be wrapped in `useCallback`.
+2. Derived state must use `useMemo`.
+3. Context interactions must have clear ownership.
+
+### Context Interaction Guidelines
+
+- One context should own data fetching; others should only consume.
+- Avoid circular dependencies between contexts.
+- When using multiple data contexts, clearly define which context is responsible for loading specific data.
+- Never duplicate data fetching logic between a component and its context provider.
+
+### Derived State in Dependencies
+
+- Always memoize derived state with `useMemo`.
+- Validate effect dependency arrays carefully.
+- Prefer stable identifiers over objects or arrays in dependencies.
+- For array transformations (sort, filter, map), use a stable cached result instead of creating new arrays on each render.
+
+### Specific Anti-Patterns to Avoid
+
+- **Dual fetching**: Don't fetch the same data from both a component and its context.
+- **Unstable identifiers in dependencies**: Avoid using functions that return new objects/arrays in dependency arrays.
+- **Cross-context update cycles**: One context update should not trigger another context update in a cyclical manner.
+- **Missed dependency warnings**: Always address React Hook dependency warnings rather than suppressing them.
+
+### Testing for Infinite Loop Prevention
+
+- When implementing data fetching with React contexts:
+  1. Monitor network traffic to check for repeated identical API calls.
+  2. Add console.log statements in useEffect hooks to verify execution frequency.
+  3. Use React DevTools profiler to identify components re-rendering excessively.
+
+
+================================================
+FILE: .windsurf/rules/stick-to-the-chat-plan.md
+================================================
+---
+trigger: model_decision
+description: Prevent scope creep by sticking to the plan formulated in chat mode
+---
+
+# Implementation Boundaries Rule
+
+When implementing a feature:
+
+1. Strictly adhere to the scope defined in the planning phase
+2. Prioritize functionality over UI enhancements unless explicitly requested
+3. Avoid adding user-facing controls or displays not specified in requirements
+4. When in doubt about a feature's inclusion, ask for explicit confirmation
+5. Focus on robust implementation of core functionality before considering extensions
+
+This rule ensures development remains focused on solving the specific problems outlined in requirements without unnecessary scope expansion.
+
+
+================================================
+FILE: .windsurf/workflows/chat.md
+================================================
+---
+description: Switch to chat mode
+---
+
+## Chat Mode
+
+We are now in Chat mode until I instruct you otherwise.
+
+In chat mode, the goal is to have a discussion where you make proposals for changes that we iteratively revise until we are satisfied with the plan.
+
+## Goals
+1. In chat mode mode I do not expect you to produce code, instead I expect an implementation plan
+2. You will produce a series of overview plans for us to dicuss and iterate
+3. Finally, when I instruct you to do so, you will ouput a detailed plan for you to enact when we switch to 'write' mode
+
+## Chat Mode Rules
+- You *must not* attempt to *write* code to the project
+- You *must not* attempt to use command line tools
+- You *are* allowed to access any project files 'read only' for analysis purposes
+
+## Ways of Working
+We will work together through your questions. You must ask me questions *one at a time*. You can branch off and drill down into questions by asking sub-questions before returning to ask more primary questions, which may in turn have sub-questions, and so on, until you feel confident you have enough information to write a plan we can use to enact our discovered goals.
+
+## Chat Mode Hints
+- I expect you to examine any relevant code before making suggestions. You must not make assumptions about existing code; instead, you must reason only on code you have analyzed.
+- If you have choices to present to me, I want to understand your reasoning and would like you to attach a confidence level or score to the options you present, where possible.
+- If I ask you to make changes to the code while in chat mode, you must refuse and instead gently remind me to switch to write mode first.
+- Do not suggest we use fall-back data. If for any reason data sources are not returning data correctly, we must see this an an error. Such problems must not be masked with either dummy data or alternative data.
+
+
+================================================
+FILE: .windsurf/workflows/clean.md
+================================================
+---
+description: Remove code, files, and folders that are not strictly required
+---
+
+## Project Minimization Procedure
+
+- Starting at the root project folder, recursively check all the project folders and files, with the exception of the scripts folder, with the goal of removing any code, files, and folders that are not strictly required for the current feature set. 
+- Cross-reference all components against the active features.
+- Flag and eliminate anything not directly supporting those features, including:
+  - Unused functions and classes
+  - Duplicate implementations
+  - Dead code branches
+  - Empty directories
+  - Stub files
+  - Redundant dependencies
+  - Debug or development artifacts
+- Maintain core execution paths through call graph analysis to ensure that all essential interprocedural control flows are preserved.
+- Ensure the program’s behavior remains unchanged after each removal.
+
+
+================================================
+FILE: .windsurf/workflows/new-chat.md
+================================================
+---
+description: Start a new chat
+---
+
+I need to start a new chat. In order to give this new chat the best possible context to begin with, output a detailed description of our project, its goals, technology and the latest set of problem we are looking to fix. Include a reminder about chat more versus write mode, and an instrcution to read our rules.
+
+
+================================================
+FILE: .windsurf/workflows/write.md
+================================================
+---
+description: Switch to write mode
+---
+
+## Write Mode
+
+We are now in Write mode until I instruct you otherwise.
+
+In write mode, the goal is to implement the ideas we have discussed while in chat mode. We should stay in write mode for the minimum amount of time, reverting to chat mode to further refine our ideas. Write mode is for writing, chat mode is for chatting.
+
+## Write Mode Rules
+- First, before starting anything, ask me to ensure that we are correctly in write mode, wait until I have verified this.
+- Once verified, you are to edit the code files directly
+- Fix linting errors as they arise. Do not let lint errors sit, you must fix these to leave clean code files. You can request that I run npm run lint periodically if you need me to.
+- Write script files into the script directory to test out ideas and debug problems
+- Do not attempt to run command line commands. Instead, you must print to the chat window so that I can copy it and run it manually. The commands must be formatted correctly for the Windows command line tool only
+- Do not write fall-back data. If for enay reason, data sources are not returning data correctly, we must fix these problems. Never mask data fetching problems with either dummy data or alternative data.
+
+## Write Mode Hints
+- Before writing SQL, ensure you have read the db-schema.txt file located in the root of this project. Pay close attention to the column names. Do not take shortcuts when reading this file. Especially do not assume the column names from the index names as this has led us into trouble before.
+- If you are confident your changes are correct, then go ahead and implement them. Do not stop to ask permission unless you need additional information. For example, do not ask the question: "Ready to proceed with this change?" Assume that I am ready to proceed because we are in write mode.
+- Feel free to ask questions for clarification as we go; however, it is *vitally important* that we do not start redesigning the current solution or deviate from the current plan. If you think this is happening, politely remind me we are in write mode and suggest I switch to chat mode. Write mode is for writing code. Chat mode is for discussing solutions.
+
+# Implementation Boundaries Rule
+
+When implementing a feature:
+
+1. Strictly adhere to the scope defined in the planning phase
+2. Prioritize functionality over UI enhancements unless explicitly requested
+3. Avoid adding user-facing controls or displays not specified in requirements
+4. When in doubt about a feature's inclusion, ask for explicit confirmation
+5. Focus on robust implementation of core functionality before considering extensions
+
+This rule ensures development remains focused on solving the specific problems outlined in requirements without unnecessary scope expansion.
+
