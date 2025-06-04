@@ -59,8 +59,8 @@ export default function SpecificationsPage() {
   const [activeTab, setActiveTab] = useState<string>(TABS.SPECIFICATIONS);
 
   // Extract data from context states
-  const products = Array.from(productState.products.values());
-  const specifications = getSpecificationsSortedByCompleteness();
+  const products = useMemo(() => Array.from(productState.products.values()), [productState.products]);
+  const specifications = useMemo(() => getSpecificationsSortedByCompleteness(), [getSpecificationsSortedByCompleteness]);
   const specLoading = specState.isLoading || isLoadingSection('specifications');
   const specError = specState.error;
   const productLoading = productState.isLoadingBatch || isLoadingSection('products');
@@ -110,9 +110,12 @@ export default function SpecificationsPage() {
 
       // Search query check
       let matchesSearch = searchQuery.trim() === '';
-      if (!matchesSearch) {
+      if (!matchesSearch && spec.product) {
+        // Use product data directly from the specification if available
+        matchesSearch = spec.product.title.toLowerCase().includes(searchQuery.toLowerCase());
+      } else if (!matchesSearch && spec.shopify_handle) {
         // Get product title from cache if available, otherwise use handle
-        const product = spec.shopify_handle ? getProduct(spec.shopify_handle) : null;
+        const product = getProduct(spec.shopify_handle);
         const productTitle = product ? product.title : (spec.shopify_handle || '');
         matchesSearch = productTitle.toLowerCase().includes(searchQuery.toLowerCase());
       }
@@ -168,6 +171,9 @@ export default function SpecificationsPage() {
   useEffect(() => {
     if (!user) return;
 
+    let isMounted = true;
+    const controller = new AbortController();
+
     const loadData = async () => {
       try {
         // Start loading section
@@ -177,15 +183,24 @@ export default function SpecificationsPage() {
         // The specification cache will handle fetching products for specifications
         await fetchSpecifications(user.id);
         
+        if (!isMounted) return;
+        
         // Initialize progressive product loading
         // This will load an initial batch and start background loading
         await preloadProducts(user.id);
       } finally {
-        stopLoading('specifications');
+        if (isMounted) {
+          stopLoading('specifications');
+        }
       }
     };
 
     loadData();
+    
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [user, fetchSpecifications, preloadProducts, startLoading, stopLoading]);
 
   // Fetch brands when component mounts

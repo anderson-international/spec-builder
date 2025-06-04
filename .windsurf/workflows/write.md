@@ -20,3 +20,15 @@ In write mode, the goal is to implement the ideas we have discussed while in cha
 - Before writing SQL, ensure you have read the db-schema.txt file located in the root of this project. Pay close attention to the column names. Do not take shortcuts when reading this file. Especially do not assume the column names from the index names as this has led us into trouble before.
 - If you are confident your changes are correct, then go ahead and implement them. Do not stop to ask permission unless you need additional information. For example, do not ask the question: "Ready to proceed with this change?" Assume that I am ready to proceed because we are in write mode.
 - Feel free to ask questions for clarification as we go; however, it is *vitally important* that we do not start redesigning the current solution or deviate from the current plan. If you think this is happening, politely remind me we are in write mode and suggest I switch to chat mode. Write mode is for writing code. Chat mode is for discussing solutions.
+
+# Implementation Boundaries Rule
+
+When implementing a feature:
+
+1. Strictly adhere to the scope defined in the planning phase
+2. Prioritize functionality over UI enhancements unless explicitly requested
+3. Avoid adding user-facing controls or displays not specified in requirements
+4. When in doubt about a feature's inclusion, ask for explicit confirmation
+5. Focus on robust implementation of core functionality before considering extensions
+
+This rule ensures development remains focused on solving the specific problems outlined in requirements without unnecessary scope expansion.

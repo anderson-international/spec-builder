@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { 
   SpecificationCacheState, 
   SpecificationContextType,
@@ -18,7 +18,7 @@ const defaultSpecificationCacheState: SpecificationCacheState = {
 
 const defaultSpecificationContext: SpecificationContextType = {
   state: defaultSpecificationCacheState,
-  fetchSpecifications: async () => {},
+  fetchSpecifications: async () => { return; },
   getSpecificationsSortedByCompleteness: () => [],
   resetCache: () => {},
 };
@@ -38,10 +38,14 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
 
   // Fetch specifications for a user
   const fetchSpecifications = useCallback(async (userId: string) => {
+    // Cancel any previous requests
+    const abortController = new AbortController();
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
-      const response = await fetch(`/api/specifications?userId=${userId}`);
+      const response = await fetch(`/api/specifications?userId=${userId}`, {
+        signal: abortController.signal
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch specifications: ${response.status}`);
@@ -56,7 +60,7 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
         return {
           ...spec,
           product,
-          isProductLoading: !product, // Mark as loading if product isn't in cache
+          isProductLoading: !product && spec.shopify_handle ? true : false, // Mark as loading only if handle exists
         };
       });
       
@@ -69,7 +73,7 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
       // Extract handles that need to be fetched with priority
       const visibleSpecHandles = specificationsWithProduct
         .slice(0, 8) // Assume first 8 specs are visible in viewport
-        .filter(spec => !spec.product)
+        .filter(spec => !spec.product && spec.shopify_handle)
         .map(spec => spec.shopify_handle);
         
       // Fetch visible products with priority
@@ -79,7 +83,7 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
       
       // Get all handles that need to be fetched
       const allHandlesToFetch = specificationsWithProduct
-        .filter(spec => !spec.product)
+        .filter(spec => !spec.product && spec.shopify_handle)
         .map(spec => spec.shopify_handle);
         
       if (allHandlesToFetch.length > 0 && allHandlesToFetch.length !== visibleSpecHandles.length) {
@@ -89,19 +93,35 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
         );
         fetchProductsByHandles(remainingHandles);
       }
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'An unknown error occurred',
-      }));
+    } catch (error: unknown) {
+      // Only update error state if not aborted
+      if (error instanceof Error && error.name !== 'AbortError') {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: error.message,
+        }));
+      } else if (error !== null && error !== undefined) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'An unknown error occurred',
+        }));
+      }
     }
+    
+    // We don't need to return a cleanup function from this callback
+    abortController.abort();
+    return;
   }, [getProduct, fetchProductsByHandles]);
 
   // Update specifications when product cache changes
   const { state: productState } = useProductCache();
   useEffect(() => {
     if (state.specifications.length === 0) return;
+    
+    // Compare before updating - track if any changes were made
+    let hasChanges = false;
     
     // Update specifications with newly loaded products
     setState(prev => {
@@ -112,6 +132,7 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
         // Check if the product is now available in the cache
         const product = getProduct(spec.shopify_handle);
         if (product) {
+          hasChanges = true;
           return {
             ...spec,
             product,
@@ -119,33 +140,30 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
           };
         }
         
-        // Check if loading
+        // Check if loading status changed
         const isLoading = productState.loadingHandles.has(spec.shopify_handle);
-        
-        if (!isLoading) {
-          // Mark as not loading if it's not in loading state
+        if (spec.isProductLoading !== isLoading) {
+          hasChanges = true;
           return {
             ...spec,
-            isProductLoading: false,
+            isProductLoading: isLoading,
           };
         }
         
         return spec;
       });
       
-      return {
+      // Only update state if something actually changed
+      return hasChanges ? {
         ...prev,
         specifications: updatedSpecs,
-      };
+      } : prev;
     });
-  }, [productState.products, productState.loadingHandles, getProduct, state.specifications.length]);
+  }, [productState.products, productState.loadingHandles, getProduct]);
 
   // Sort specifications by completeness (products loaded first) with proper memoization
-  const [sortedSpecifications, setSortedSpecifications] = useState<SpecificationWithProduct[]>([]);
-  
-  // Update sorted specifications when the underlying specifications change
-  useEffect(() => {
-    const sorted = [...state.specifications].sort((a, b) => {
+  const sortedSpecifications = useMemo(() => {
+    return [...state.specifications].sort((a, b) => {
       // First sort by product availability
       if (a.product && !b.product) return -1;
       if (!a.product && b.product) return 1;
@@ -153,8 +171,6 @@ export function SpecificationProvider({ children }: { children: React.ReactNode 
       // Then by creation date (newest first)
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-    
-    setSortedSpecifications(sorted);
   }, [state.specifications]);
   
   // Return the memoized sorted specifications
