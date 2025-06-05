@@ -57,7 +57,7 @@ export default function SpecificationsPage() {
 
   // State for tab management
   const [activeTab, setActiveTab] = useState<string>(TABS.SPECIFICATIONS);
-  
+
   // Helper function for brand matching with case insensitive comparison
   const isBrandMatch = useCallback((productBrand: string, selectedBrand: string) => {
     const productBrandLower = productBrand.toLowerCase();
@@ -69,7 +69,7 @@ export default function SpecificationsPage() {
   const fetchBrands = useCallback(async () => {
     // Use stable refs for state updates
     const { setBrandsLoading, setBrandsError, setDbBrands } = settersRef.current;
-    
+
     setBrandsLoading(true);
     setBrandsError(null);
 
@@ -89,7 +89,7 @@ export default function SpecificationsPage() {
       setBrandsLoading(false);
     }
   }, []); // Empty dependency array as we use ref for state updates
-  
+
   // Store stable references to callbacks to prevent unnecessary effect re-runs
   const callbacksRef = useRef({
     fetchSpecs: fetchSpecifications,
@@ -120,13 +120,13 @@ export default function SpecificationsPage() {
   const products = useMemo(() => {
     return Array.from(productState.products.values());
   }, [productState.products]); // Only depend on the Map reference, not its contents
-  
+
   // Use specifications from the state with stable reference
   const specifications = useMemo(() => {
     // Use the stable reference to getSpecificationsSortedByCompleteness
     return callbacksRef.current.getSpecsSorted();
   }, [productState.products.size, specState.specifications ? Object.keys(specState.specifications).length : 0]); // Only recompute when collections change size
-  
+
   // Memoize loading and error states to prevent render loops from isLoadingSection changes
   const loadingAndErrorState = useMemo(() => {
     return {
@@ -136,7 +136,7 @@ export default function SpecificationsPage() {
       productError: productState.error
     };
   }, [specState.isLoading, specState.error, productState.isLoadingBatch, productState.error, isLoadingSection]);
-  
+
   // Destructure for easier usage in component
   const { specLoading, specError, productLoading, productError } = loadingAndErrorState;
 
@@ -144,14 +144,14 @@ export default function SpecificationsPage() {
   const [dbBrands, setDbBrands] = useState<Array<{ id: number, name: string }>>([]);
   const [brandsLoading, setBrandsLoading] = useState<boolean>(true);
   const [brandsError, setBrandsError] = useState<string | null>(null);
-  
+
   // Create refs for state setters to maintain stable references
   const settersRef = useRef({
     setDbBrands,
     setBrandsLoading,
     setBrandsError
   });
-  
+
   // Update state setter refs when they change
   useEffect(() => {
     settersRef.current = {
@@ -164,12 +164,12 @@ export default function SpecificationsPage() {
   // Filter state
   const [brandFilter, setBrandFilter] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
   // Stable event handlers for search and filter changes
   const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
   }, []);
-  
+
   const handleBrandFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setBrandFilter(e.target.value);
   }, []);
@@ -199,11 +199,12 @@ export default function SpecificationsPage() {
     ] as Tab[];
   }, [specifications.length, products.length]); // Only re-create when counts change
 
+
   // Apply filters to specifications
   const filteredSpecifications = useMemo(() => {
     // Use stable references from callbacksRef
     const { isBrandMatch, getProduct } = callbacksRef.current;
-    
+
     return specifications.filter(spec => {
       // Brand filter check
       const matchesBrand = brandFilter === '' ||
@@ -228,7 +229,7 @@ export default function SpecificationsPage() {
   const filteredProducts = useMemo(() => {
     // Use stable reference from callbacksRef
     const { isBrandMatch } = callbacksRef.current;
-    
+
     return products.filter(product => {
       const matchesSearch = searchQuery.trim() === '' ||
         product.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -261,16 +262,16 @@ export default function SpecificationsPage() {
     const loadData = async () => {
       // Use stable references from callbacksRef to prevent render loops
       const { fetchSpecs, preloadProds, startLoad, stopLoad } = callbacksRef.current;
-      
+
       try {
         // Start loading section
         startLoad('specifications');
 
         // Fetch specifications for the current user
         await fetchSpecs(user.id);
-        
+
         if (!isMounted) return;
-        
+
         // Initialize progressive product loading
         // This will load an initial batch and start background loading
         await preloadProds(user.id);
@@ -282,7 +283,7 @@ export default function SpecificationsPage() {
     };
 
     loadData();
-    
+
     return () => {
       isMounted = false;
       controller.abort();
