@@ -13,7 +13,7 @@ import { useProductCache } from '@/lib/data-management/productCache';
 import { useSpecificationCache } from '@/lib/data-management/specificationCache';
 import { useLoading } from '@/lib/loading/context';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface TastingNote {
   id: number;
@@ -57,37 +57,7 @@ export default function SpecificationsPage() {
 
   // State for tab management
   const [activeTab, setActiveTab] = useState<string>(TABS.SPECIFICATIONS);
-
-  // Extract data from context states
-  const products = useMemo(() => Array.from(productState.products.values()), [productState.products]);
-  const specifications = useMemo(() => getSpecificationsSortedByCompleteness(), [getSpecificationsSortedByCompleteness]);
-  const specLoading = specState.isLoading || isLoadingSection('specifications');
-  const specError = specState.error;
-  const productLoading = productState.isLoadingBatch || isLoadingSection('products');
-  const productError = productState.error;
-
-  // State for database brands
-  const [dbBrands, setDbBrands] = useState<Array<{ id: number, name: string }>>([]);
-  const [brandsLoading, setBrandsLoading] = useState<boolean>(true);
-  const [brandsError, setBrandsError] = useState<string | null>(null);
-
-  // Filter state
-  const [brandFilter, setBrandFilter] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  // Derived lists of unique brands for filter dropdowns
-  const specBrands = useMemo(() => {
-    const brands = specifications
-      .filter(spec => spec.product_brand) // Filter out specs with null product_brand
-      .map(spec => spec.product_brand!.name);
-    return Array.from(new Set(brands)).sort().map(name => ({ id: name, label: name }));
-  }, [specifications]);
-
-  // Use the database brands for the product dropdown
-  const productBrands = useMemo(() => {
-    return dbBrands.map(brand => ({ id: brand.name, label: brand.name }));
-  }, [dbBrands]);
-
+  
   // Helper function for brand matching with case insensitive comparison
   const isBrandMatch = useCallback((productBrand: string, selectedBrand: string) => {
     const productBrandLower = productBrand.toLowerCase();
@@ -95,14 +65,145 @@ export default function SpecificationsPage() {
     return productBrandLower === selectedBrandLower;
   }, []);
 
-  // Tabs definition
-  const tabs: Tab[] = [
-    { id: TABS.SPECIFICATIONS, label: 'My Specifications', count: specifications.length },
-    { id: TABS.PRODUCTS, label: 'Available Products', count: products.length }
-  ];
+  // Fetch all brands from the database with stable references
+  const fetchBrands = useCallback(async () => {
+    // Use stable refs for state updates
+    const { setBrandsLoading, setBrandsError, setDbBrands } = settersRef.current;
+    
+    setBrandsLoading(true);
+    setBrandsError(null);
+
+    try {
+      const response = await fetch('/api/brands');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch brands');
+      }
+
+      const data = await response.json();
+      setDbBrands(data);
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+      setBrandsError(error instanceof Error ? error.message : 'Failed to load brands');
+    } finally {
+      setBrandsLoading(false);
+    }
+  }, []); // Empty dependency array as we use ref for state updates
+  
+  // Store stable references to callbacks to prevent unnecessary effect re-runs
+  const callbacksRef = useRef({
+    fetchSpecs: fetchSpecifications,
+    preloadProds: preloadProducts,
+    startLoad: startLoading,
+    stopLoad: stopLoading,
+    getProduct: getProduct,
+    isBrandMatch: isBrandMatch,
+    getSpecsSorted: getSpecificationsSortedByCompleteness,
+    fetchBrands: fetchBrands
+  });
+
+  // Update the ref values when dependencies change
+  useEffect(() => {
+    callbacksRef.current = {
+      fetchSpecs: fetchSpecifications,
+      preloadProds: preloadProducts,
+      startLoad: startLoading,
+      stopLoad: stopLoading,
+      getProduct: getProduct,
+      isBrandMatch: isBrandMatch,
+      getSpecsSorted: getSpecificationsSortedByCompleteness,
+      fetchBrands: fetchBrands
+    };
+  }, [fetchSpecifications, preloadProducts, startLoading, stopLoading, getProduct, isBrandMatch, getSpecificationsSortedByCompleteness, fetchBrands]);
+
+  // Extract data from context states with deep memoization to prevent render loops
+  const products = useMemo(() => {
+    return Array.from(productState.products.values());
+  }, [productState.products]); // Only depend on the Map reference, not its contents
+  
+  // Use specifications from the state with stable reference
+  const specifications = useMemo(() => {
+    // Use the stable reference to getSpecificationsSortedByCompleteness
+    return callbacksRef.current.getSpecsSorted();
+  }, [productState.products.size, specState.specifications ? Object.keys(specState.specifications).length : 0]); // Only recompute when collections change size
+  
+  // Memoize loading and error states to prevent render loops from isLoadingSection changes
+  const loadingAndErrorState = useMemo(() => {
+    return {
+      specLoading: specState.isLoading || isLoadingSection('specifications'),
+      specError: specState.error,
+      productLoading: productState.isLoadingBatch || isLoadingSection('products'),
+      productError: productState.error
+    };
+  }, [specState.isLoading, specState.error, productState.isLoadingBatch, productState.error, isLoadingSection]);
+  
+  // Destructure for easier usage in component
+  const { specLoading, specError, productLoading, productError } = loadingAndErrorState;
+
+  // State for database brands
+  const [dbBrands, setDbBrands] = useState<Array<{ id: number, name: string }>>([]);
+  const [brandsLoading, setBrandsLoading] = useState<boolean>(true);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+  
+  // Create refs for state setters to maintain stable references
+  const settersRef = useRef({
+    setDbBrands,
+    setBrandsLoading,
+    setBrandsError
+  });
+  
+  // Update state setter refs when they change
+  useEffect(() => {
+    settersRef.current = {
+      setDbBrands,
+      setBrandsLoading,
+      setBrandsError
+    };
+  }, [setDbBrands, setBrandsLoading, setBrandsError]);
+
+  // Filter state
+  const [brandFilter, setBrandFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Stable event handlers for search and filter changes
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+  }, []);
+  
+  const handleBrandFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setBrandFilter(e.target.value);
+  }, []);
+
+  // Derived lists of unique brands for filter dropdowns - memoized to prevent render loops
+  const specBrands = useMemo(() => {
+    // Only recalculate when the length of specifications changes or stable key set changes
+    // This avoids re-renders when specification contents change but structure remains same
+    const brands = specifications
+      .filter(spec => spec.product_brand) // Filter out specs with null product_brand
+      .map(spec => spec.product_brand!.name);
+    return Array.from(new Set(brands)).sort().map(name => ({ id: name, label: name }));
+  }, [specifications.length]); // Only depend on the length, not the array reference itself
+
+  // Use the database brands for the product dropdown - memoized to prevent render loops
+  const productBrands = useMemo(() => {
+    // Only recalculate when the length of dbBrands changes
+    // This prevents unnecessary re-renders when array reference changes but data is the same
+    return dbBrands.map(brand => ({ id: brand.name, label: brand.name }));
+  }, [dbBrands.length]); // Only depend on the length, not the array reference itself
+
+  // Tabs definition - memoized to prevent unnecessary re-renders
+  const tabs = useMemo(() => {
+    return [
+      { id: TABS.SPECIFICATIONS, label: 'My Specifications', count: specifications.length },
+      { id: TABS.PRODUCTS, label: 'Available Products', count: products.length }
+    ] as Tab[];
+  }, [specifications.length, products.length]); // Only re-create when counts change
 
   // Apply filters to specifications
   const filteredSpecifications = useMemo(() => {
+    // Use stable references from callbacksRef
+    const { isBrandMatch, getProduct } = callbacksRef.current;
+    
     return specifications.filter(spec => {
       // Brand filter check
       const matchesBrand = brandFilter === '' ||
@@ -122,9 +223,12 @@ export default function SpecificationsPage() {
 
       return matchesBrand && matchesSearch;
     });
-  }, [specifications, searchQuery, brandFilter, isBrandMatch, getProduct]);
+  }, [specifications, searchQuery, brandFilter, callbacksRef]); // Only depend on callbacksRef, not individual functions
 
   const filteredProducts = useMemo(() => {
+    // Use stable reference from callbacksRef
+    const { isBrandMatch } = callbacksRef.current;
+    
     return products.filter(product => {
       const matchesSearch = searchQuery.trim() === '' ||
         product.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -134,40 +238,20 @@ export default function SpecificationsPage() {
 
       return matchesSearch && matchesBrand;
     });
-  }, [products, searchQuery, brandFilter, isBrandMatch]);
+  }, [products, searchQuery, brandFilter, callbacksRef]); // Only depend on callbacksRef, not individual functions
 
-  // Handle tab change
-  const handleTabChange = (tabId: string) => {
+  // Handle tab change with useCallback to prevent unnecessary re-renders
+  const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
-    // Reset filters when switching tabs
+    // Reset filters when switching tabs for better UX
     setBrandFilter('');
     setSearchQuery('');
-  };
-
-  // Fetch specifications for the current user
-  // Fetch all brands from the database
-  const fetchBrands = useCallback(async () => {
-    setBrandsLoading(true);
-    setBrandsError(null);
-
-    try {
-      const response = await fetch('/api/brands');
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch brands');
-      }
-
-      const data = await response.json();
-      setDbBrands(data);
-    } catch (error) {
-      console.error('Error fetching brands:', error);
-      setBrandsError(error instanceof Error ? error.message : 'Failed to load brands');
-    } finally {
-      setBrandsLoading(false);
-    }
   }, []);
 
-  // Load specifications and related product data
+  // Fetch specifications for the current user
+  // Note: fetchBrands function is defined at the top with optimized state refs
+
+  // Load specifications and related product data with minimal dependencies
   useEffect(() => {
     if (!user) return;
 
@@ -175,22 +259,24 @@ export default function SpecificationsPage() {
     const controller = new AbortController();
 
     const loadData = async () => {
+      // Use stable references from callbacksRef to prevent render loops
+      const { fetchSpecs, preloadProds, startLoad, stopLoad } = callbacksRef.current;
+      
       try {
         // Start loading section
-        startLoading('specifications');
+        startLoad('specifications');
 
         // Fetch specifications for the current user
-        // The specification cache will handle fetching products for specifications
-        await fetchSpecifications(user.id);
+        await fetchSpecs(user.id);
         
         if (!isMounted) return;
         
         // Initialize progressive product loading
         // This will load an initial batch and start background loading
-        await preloadProducts(user.id);
+        await preloadProds(user.id);
       } finally {
         if (isMounted) {
-          stopLoading('specifications');
+          stopLoad('specifications');
         }
       }
     };
@@ -201,12 +287,13 @@ export default function SpecificationsPage() {
       isMounted = false;
       controller.abort();
     };
-  }, [user, fetchSpecifications, preloadProducts, startLoading, stopLoading]);
+  }, [user, callbacksRef]); // Only depend on user and callbacksRef, not on individual functions
 
-  // Fetch brands when component mounts
+  // Fetch brands when component mounts - use stable reference to avoid render loops
   useEffect(() => {
-    fetchBrands();
-  }, [fetchBrands]);
+    // Use stable reference from callbacksRef instead of the direct function
+    callbacksRef.current.fetchBrands();
+  }, []); // Empty dependency array as we're using the ref
 
   // Update when brand filter changes
   useEffect(() => {
@@ -230,7 +317,7 @@ export default function SpecificationsPage() {
             <div className="flex-1">
               <Search
                 value={searchQuery}
-                onChange={setSearchQuery}
+                onChange={handleSearchChange}
                 placeholder="Search products..."
                 className="w-full"
               />
@@ -240,7 +327,7 @@ export default function SpecificationsPage() {
                 id="brand-filter"
                 className="border border-gray-300 rounded-md w-full p-2 text-black"
                 value={brandFilter}
-                onChange={e => setBrandFilter(e.target.value)}
+                onChange={handleBrandFilterChange}
                 disabled={activeTab === TABS.PRODUCTS && brandsLoading}
               >
                 <option value="">All Brands</option>

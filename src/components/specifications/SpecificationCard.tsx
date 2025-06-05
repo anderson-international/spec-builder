@@ -2,7 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import Card from '@/components/ui/Card';
 import StarRating from '@/components/ui/StarRating';
-import { SpecificationWithProduct, TastingNoteRelation } from '@/lib/data-management/types';
+import { SpecificationWithProduct } from '@/lib/data-management/specification';
 
 interface SpecificationCardProps {
   specification: SpecificationWithProduct;
@@ -10,7 +10,8 @@ interface SpecificationCardProps {
   isProductLoading?: boolean;
 }
 
-export const SpecificationCard: React.FC<SpecificationCardProps> = ({
+// Use React.memo to prevent unnecessary re-renders when props haven't meaningfully changed
+export const SpecificationCard: React.FC<SpecificationCardProps> = React.memo(({ 
   specification,
   onClick,
   isProductLoading = false,
@@ -67,6 +68,18 @@ export const SpecificationCard: React.FC<SpecificationCardProps> = ({
       )}
     </Card>
   );
-};
+}, (prevProps, nextProps) => {
+  // Return true if nothing important changed (prevents re-render)
+  // This optimizes rendering by only updating when meaningful changes occur
+  return (
+    prevProps.specification.id === nextProps.specification.id &&
+    prevProps.isProductLoading === nextProps.isProductLoading &&
+    // Only compare product ids if both have products
+    ((!prevProps.specification.product && !nextProps.specification.product) ||
+     (prevProps.specification.product?.id === nextProps.specification.product?.id)) &&
+    // Only re-render if completion percentage changes
+    prevProps.specification.completion_percent === nextProps.specification.completion_percent
+  );
+});
 
 export default SpecificationCard;
